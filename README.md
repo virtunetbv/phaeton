@@ -32,6 +32,22 @@ On the GX device:
 
 ### 2. Download the GX release package
 
+Fast path from your machine after SSH is enabled on the GX:
+
+```sh
+ssh root@<gx-ip> 'curl -fsSL https://raw.githubusercontent.com/virtunetbv/phaeton/main/scripts/install-gx.sh | sh'
+```
+
+That installer downloads the latest stable GX package, verifies `SHA256SUMS`, installs Phaeton into `/data/phaeton`, and creates or updates `/data/rc.local` for autostart.
+
+If you are already logged into the GX shell, you can run:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/virtunetbv/phaeton/main/scripts/install-gx.sh | sh
+```
+
+If you prefer the manual installation steps, use the process below.
+
 Public install packages are published on the Releases page:
 
 https://github.com/virtunetbv/phaeton/releases
@@ -74,7 +90,9 @@ On first start, Phaeton writes `config.yaml` in its data directory and generates
 
 ### 5. Start Phaeton automatically on boot
 
-Create or edit `/data/rc.local`:
+If you used the installer script above, this step is already done for you.
+
+Otherwise, create or edit `/data/rc.local`:
 
 ```sh
 cat >/data/rc.local <<'EOF'
