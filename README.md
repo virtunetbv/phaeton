@@ -2,6 +2,92 @@
 
 Phaeton is a Victron EVCS protocol bridge for supported non-Victron EV chargers.
 
+## Install on Victron GX
+
+These steps are intended for Cerbo GX and other GX devices running Venus OS.
+
+### 1. Enable third-party software and SSH on the GX
+
+Before installing Phaeton, enable the Victron settings needed for SSH access and startup scripts.
+
+Use the official Victron root access guide for the current menu flow:
+
+https://www.victronenergy.com/live/ccgx:root_access
+
+Relevant notes from Victron's guide:
+
+> "`Modifications enabled`" is available in `Settings -> General -> Modification checks`.
+
+> "If the files /data/rcS.local or /data/rc.local exists, they will be called during startup."
+
+On the GX device:
+
+1. Go to `Settings -> General`.
+2. Raise the access level to `Superuser`.
+3. Set a temporary root password in `Settings -> General -> Set root password`.
+4. Enable `SSH on LAN` in `Settings -> General`.
+5. Open `Settings -> General -> Modification checks` and make sure `Modifications enabled` is enabled.
+
+`/data/rc.local` only works when modifications are enabled. If Venus OS renames it to `/data/rc.local.disabled`, re-enable modifications in that menu and rename the file back.
+
+### 2. Download the GX release package
+
+Public install packages are published on the Releases page:
+
+https://github.com/virtunetbv/phaeton/releases
+
+For GX devices, download:
+
+- `phaeton-<tag>-armv7-unknown-linux-gnueabihf.tar.gz`
+- `SHA256SUMS`
+
+Verify the download before installing:
+
+```bash
+sha256sum -c SHA256SUMS
+```
+
+### 3. Copy and install Phaeton on the GX
+
+Copy the release tarball to the GX:
+
+```bash
+scp phaeton-<tag>-armv7-unknown-linux-gnueabihf.tar.gz root@<gx-ip>:/data/
+```
+
+SSH into the GX and install Phaeton into `/data/phaeton`:
+
+```bash
+ssh root@<gx-ip>
+mkdir -p /data/phaeton
+tar -xzf /data/phaeton-<tag>-armv7-unknown-linux-gnueabihf.tar.gz -C /data/phaeton
+chmod +x /data/phaeton/phaeton
+```
+
+### 4. Test run
+
+```bash
+/data/phaeton/phaeton
+```
+
+On first start, Phaeton writes `config.yaml` in its data directory and generates the admin password there when authentication is enabled.
+
+### 5. Start Phaeton automatically on boot
+
+Create or edit `/data/rc.local`:
+
+```sh
+cat >/data/rc.local <<'EOF'
+#!/bin/sh
+cd /data/phaeton
+/data/phaeton/phaeton >> /data/phaeton/phaeton.log 2>&1 &
+exit 0
+EOF
+chmod +x /data/rc.local
+```
+
+Reboot the GX and confirm that Phaeton starts automatically.
+
 ## Releases
 
 Public install packages are published on the Releases page:
@@ -21,7 +107,7 @@ Verify downloads before installing:
 sha256sum -c SHA256SUMS
 ```
 
-## Install
+## Other Linux
 
 Extract the release tarball and install the `phaeton` binary:
 
@@ -30,8 +116,6 @@ mkdir -p phaeton-extract
 tar -xzf phaeton-<tag>-<artifact>.tar.gz -C phaeton-extract
 sudo install -m 0755 phaeton-extract/phaeton /usr/local/bin/phaeton
 ```
-
-On first start, Phaeton writes `config.yaml` in its data directory and generates the admin password there when authentication is enabled.
 
 ## Licensing
 
