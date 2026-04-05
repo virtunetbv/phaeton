@@ -104,7 +104,8 @@ If you are a consumer, any mandatory rights and protections available to you und
 For commercial licensing, OEM/distributor licensing, or other permissions, contact:
 
 Virtunet BV  
-ron@virtunet.nl
+sales@virtunet.io  
+https://virtunet.io
 
 ## 14. Entire Agreement
 
