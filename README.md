@@ -141,4 +141,4 @@ sudo install -m 0755 phaeton-extract/phaeton /usr/local/bin/phaeton
 - Commercial Use requires a separate license from Virtunet BV.
 - If you received Phaeton from a distributor or installer, Commercial Use is permitted only where that party is authorized by Virtunet BV to grant those rights.
 
-For commercial licensing, contact `sales@virtunet.io` or visit https://virtunet.io.
+For commercial licensing, contact `info@virtunet.io` or visit https://virtunet.io.

@@ -13,7 +13,7 @@ Commercial Use includes use:
 If you need Commercial Use rights, contact:
 
 Virtunet BV  
-sales@virtunet.io  
+info@virtunet.io  
 https://virtunet.io
 
 If you received Phaeton from a distributor, installer, OEM, or reseller, your Commercial Use is permitted only if that party is authorized by Virtunet BV to grant those rights.
