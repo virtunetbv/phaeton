@@ -1,7 +1,8 @@
 # Phaeton User Guide
 
-This is the public user guide for installing, activating, configuring, operating,
-updating, backing up, and troubleshooting Phaeton.
+The hosted public guide is available at `https://phaeton.virtunet.io/docs`.
+This Markdown file is kept as a public fallback for source review and release
+syncs.
 
 Phaeton is a Victron EVCS protocol bridge. It reads a supported physical EV
 charger over Modbus TCP and exposes that charger to a Victron GX device as a
@@ -118,8 +119,11 @@ The installer:
 - installs Phaeton into `/data/phaeton`
 - writes `/data/phaeton/run.sh`
 - adds a managed Phaeton block to `/data/rc.local`
+- starts Phaeton in the background
+- prints the web UI link for the detected GX IP address when available
 
-After installation, start Phaeton:
+After installation, open the web UI link printed by the installer. If Phaeton is
+not already running, start it manually:
 
 ```sh
 /data/phaeton/run.sh

@@ -52,7 +52,8 @@ curl -fsSL https://raw.githubusercontent.com/virtunetbv/phaeton/main/scripts/ins
 
 The installer downloads the latest stable GX package, verifies `SHA256SUMS`,
 installs Phaeton into `/data/phaeton`, and creates or updates `/data/rc.local`
-for autostart.
+for autostart. It also starts Phaeton in the background and prints a web UI link
+using the detected GX IP address when available.
 
 If you prefer the manual installation steps, use the process below.
 
@@ -148,5 +149,9 @@ For commercial licensing, contact `info@virtunet.io` or visit https://virtunet.i
 
 ## User Guide
 
-See [`docs/user_guide.md`](docs/user_guide.md) for installation, onboarding,
-activation, configuration, operation, updates, backup, and troubleshooting.
+The hosted user guide is available at:
+
+https://phaeton.virtunet.io/docs
+
+This repository also keeps a Markdown fallback at
+[`docs/user_guide.md`](docs/user_guide.md).

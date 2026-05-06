@@ -66,6 +66,57 @@ update_rc_local() {
   chmod 0755 "$RC_LOCAL"
 }
 
+detect_gx_ip() {
+  DETECTED_IP=""
+  if command -v ip >/dev/null 2>&1; then
+    DETECTED_IP=$(ip -4 route get 1.1.1.1 2>/dev/null \
+      | sed -n 's/.* src \([0-9][0-9.]*\).*/\1/p' \
+      | head -n 1 \
+      || true)
+  fi
+
+  if [ -z "$DETECTED_IP" ] && command -v hostname >/dev/null 2>&1; then
+    DETECTED_IP=$(hostname -I 2>/dev/null | awk '{print $1}' || true)
+  fi
+
+  printf '%s\n' "$DETECTED_IP"
+}
+
+is_phaeton_running() {
+  if command -v pidof >/dev/null 2>&1; then
+    pidof phaeton >/dev/null 2>&1
+    return
+  fi
+
+  if command -v pgrep >/dev/null 2>&1; then
+    pgrep -x phaeton >/dev/null 2>&1
+    return
+  fi
+
+  return 1
+}
+
+start_phaeton() {
+  if is_phaeton_running; then
+    echo "[phaeton] Phaeton is already running"
+    return
+  fi
+
+  echo "[phaeton] Starting Phaeton in the background"
+  if command -v nohup >/dev/null 2>&1; then
+    (cd "$INSTALL_DIR" && nohup "$INSTALL_DIR/run.sh" >/dev/null 2>&1 &)
+  else
+    (cd "$INSTALL_DIR" && "$INSTALL_DIR/run.sh" >/dev/null 2>&1 &)
+  fi
+
+  sleep 2
+  if is_phaeton_running; then
+    echo "[phaeton] Phaeton started"
+  else
+    echo "[phaeton] Phaeton start was requested; check $INSTALL_DIR/phaeton.log if the web UI is not reachable"
+  fi
+}
+
 if [ "$(id -u)" != "0" ]; then
   echo "This script must run as root (GX shell)." >&2
   exit 1
@@ -145,11 +196,19 @@ RUN
 
 chmod +x "$INSTALL_DIR/run.sh"
 update_rc_local
+start_phaeton
+
+GX_IP=$(detect_gx_ip)
+if [ -n "$GX_IP" ]; then
+  WEB_UI_URL="http://$GX_IP:8088/"
+else
+  WEB_UI_URL="http://<gx-ip>:8088/"
+fi
 
 echo "[phaeton] Installed to $INSTALL_DIR"
-echo "[phaeton] Web UI: http://<gx-ip>:8088"
-echo "[phaeton] First start serves the onboarding wizard at http://<gx-ip>:8088"
+echo "[phaeton] Web UI: $WEB_UI_URL"
+echo "[phaeton] Open this URL in your browser: $WEB_UI_URL"
+echo "[phaeton] First start serves the onboarding wizard at $WEB_UI_URL"
 echo "[phaeton] Free for personal use. Commercial use requires a license from Virtunet BV."
-echo "[phaeton] Start now with: $INSTALL_DIR/run.sh"
 echo "[phaeton] Autostart configured in $RC_LOCAL"
 echo "[phaeton] Modbus server will run on alternate port (e.g., $ALT_PORT) automatically"
