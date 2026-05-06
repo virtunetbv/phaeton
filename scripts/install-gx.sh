@@ -148,7 +148,7 @@ update_rc_local
 
 echo "[phaeton] Installed to $INSTALL_DIR"
 echo "[phaeton] Web UI: http://<gx-ip>:8088"
-echo "[phaeton] First start writes credentials to $INSTALL_DIR/config.yaml"
+echo "[phaeton] First start serves the onboarding wizard at http://<gx-ip>:8088"
 echo "[phaeton] Free for personal use. Commercial use requires a license from Virtunet BV."
 echo "[phaeton] Start now with: $INSTALL_DIR/run.sh"
 echo "[phaeton] Autostart configured in $RC_LOCAL"

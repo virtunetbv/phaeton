@@ -94,8 +94,9 @@ Test run:
 /data/phaeton/phaeton
 ```
 
-On first start, Phaeton writes `config.yaml` in its data directory and generates
-the admin password there when authentication is enabled.
+On first start, Phaeton writes `config.yaml` in its data directory and serves
+the first-run onboarding wizard at `http://<gx-ip>:8088/`. Complete the wizard
+to choose admin credentials before the bridge runtime starts.
 
 To start Phaeton automatically on boot, create or edit `/data/rc.local`:
 
@@ -144,3 +145,8 @@ sudo install -m 0755 phaeton-extract/phaeton /usr/local/bin/phaeton
 - If you received Phaeton from a distributor or installer, Commercial Use is permitted only where that party is authorized by Virtunet BV to grant those rights.
 
 For commercial licensing, contact `info@virtunet.io` or visit https://virtunet.io.
+
+## User Guide
+
+See [`docs/user_guide.md`](docs/user_guide.md) for installation, onboarding,
+activation, configuration, operation, updates, backup, and troubleshooting.
