@@ -1,29 +1,84 @@
 #!/bin/sh
 set -eu
-set -o pipefail 2>/dev/null || true
 
 GITHUB_API_URL="https://api.github.com/repos/virtunetbv/phaeton"
 INSTALL_DIR="/data/phaeton"
-RUN_SCRIPT="${INSTALL_DIR}/run.sh"
+ALT_PORT="1502"
+BINARY_PATH="$INSTALL_DIR/phaeton"
+BINARY_TMP="$INSTALL_DIR/phaeton.new"
 RC_LOCAL="/data/rc.local"
-MARKER_BEGIN="# BEGIN PHAETON AUTOSTART"
-MARKER_END="# END PHAETON AUTOSTART"
+RC_LOCAL_TMP="$INSTALL_DIR/rc.local.new"
+RC_LOCAL_INPUT="$INSTALL_DIR/rc.local.input"
 
-echo "[phaeton] GX installer"
+echo "[phaeton] Cerbo GX installer"
+
+update_rc_local() {
+  if [ -f "$RC_LOCAL" ]; then
+    if sed -n '1p' "$RC_LOCAL" | grep -q '^#!'; then
+      cp "$RC_LOCAL" "$RC_LOCAL_INPUT"
+    else
+      {
+        printf '%s\n' '#!/bin/sh'
+        cat "$RC_LOCAL"
+      } > "$RC_LOCAL_INPUT"
+    fi
+  else
+    printf '%s\n' '#!/bin/sh' > "$RC_LOCAL_INPUT"
+  fi
+
+  awk '
+    $0 == "# Phaeton autostart begin" { skipping = 1; next }
+    $0 == "# Phaeton autostart end" { skipping = 0; next }
+    skipping { next }
+    $0 == "cd /data/phaeton && /data/phaeton/phaeton &" { next }
+    $0 == "cd /data/phaeton && ./phaeton &" { next }
+    $0 == "/data/phaeton/phaeton >> /data/phaeton.log 2>&1 &" { next }
+    $0 == "/data/phaeton/run.sh &" { next }
+    $0 == "exit 0" && !inserted {
+      print "# Phaeton autostart begin"
+      print "/data/phaeton/run.sh &"
+      print "# Phaeton autostart end"
+      inserted = 1
+      has_exit = 1
+      print
+      next
+    }
+    $0 == "exit 0" {
+      has_exit = 1
+      print
+      next
+    }
+    { print }
+    END {
+      if (!inserted) {
+        print "# Phaeton autostart begin"
+        print "/data/phaeton/run.sh &"
+        print "# Phaeton autostart end"
+      }
+      if (!has_exit) {
+        print "exit 0"
+      }
+    }
+  ' "$RC_LOCAL_INPUT" > "$RC_LOCAL_TMP"
+
+  mv "$RC_LOCAL_TMP" "$RC_LOCAL"
+  rm -f "$RC_LOCAL_INPUT"
+  chmod 0755 "$RC_LOCAL"
+}
 
 if [ "$(id -u)" != "0" ]; then
-  echo "This script must run as root on the GX device." >&2
+  echo "This script must run as root (GX shell)." >&2
   exit 1
 fi
 
 if [ ! -f /etc/venus/machine ]; then
-  echo "This installer only supports Venus OS / GX devices." >&2
+  echo "Not a Venus OS / Cerbo GX device; aborting." >&2
   exit 1
 fi
 
 ARCH=$(uname -m)
 if [ "$ARCH" != "armv7l" ] && [ "$ARCH" != "armv7" ]; then
-  echo "Unsupported architecture: $ARCH (expected armv7)." >&2
+  echo "Unsupported arch: $ARCH (expected armv7)." >&2
   exit 1
 fi
 
@@ -48,7 +103,7 @@ SHA_PATH="$TMP_DIR/SHA256SUMS"
 CHECK_PATH="$TMP_DIR/$ARCHIVE_NAME.sha256"
 STAGE_DIR="$TMP_DIR/stage"
 
-echo "[phaeton] Downloading $ARCHIVE_NAME"
+echo "[phaeton] Downloading release package $ARCHIVE_NAME"
 curl -fL "$ARCHIVE_URL" -o "$ARCHIVE_PATH"
 curl -fL "$SHA_URL" -o "$SHA_PATH"
 
@@ -72,58 +127,29 @@ if [ ! -f "$STAGE_DIR/phaeton" ]; then
 fi
 
 rm -rf "$INSTALL_DIR/webui"
-install -m 0755 "$STAGE_DIR/phaeton" "$INSTALL_DIR/phaeton"
+rm -f "$BINARY_TMP"
+cp "$STAGE_DIR/phaeton" "$BINARY_TMP"
+chmod 0755 "$BINARY_TMP"
+mv "$BINARY_TMP" "$BINARY_PATH"
 if [ -d "$STAGE_DIR/webui" ]; then
   cp -R "$STAGE_DIR/webui" "$INSTALL_DIR/"
 fi
 
-cat > "$RUN_SCRIPT" <<'RUN'
+cat > "$INSTALL_DIR/run.sh" <<'RUN'
 #!/bin/sh
 set -e
 export PHAETON_DATA_DIR=/data/phaeton
 export RUST_LOG=info
 exec /data/phaeton/phaeton
 RUN
-chmod +x "$RUN_SCRIPT"
 
-AUTOSTART_BLOCK=$(cat <<'BLOCK'
-# BEGIN PHAETON AUTOSTART
-if [ -x /data/phaeton/run.sh ]; then
-  /data/phaeton/run.sh >> /data/phaeton/phaeton.log 2>&1 &
-fi
-# END PHAETON AUTOSTART
-BLOCK
-)
-
-if [ -f "$RC_LOCAL" ]; then
-  awk -v begin="$MARKER_BEGIN" -v end="$MARKER_END" '
-    $0 == begin { skip=1; next }
-    $0 == end { skip=0; next }
-    skip != 1 { print }
-  ' "$RC_LOCAL" > "$TMP_DIR/rc.local.clean"
-else
-  : > "$TMP_DIR/rc.local.clean"
-fi
-
-{
-  printf '#!/bin/sh\n\n'
-  if [ -s "$TMP_DIR/rc.local.clean" ]; then
-    awk '
-      NR == 1 && $0 == "#!/bin/sh" { next }
-      $0 == "exit 0" { next }
-      { print }
-    ' "$TMP_DIR/rc.local.clean"
-    printf '\n'
-  fi
-  printf '%s\n' "$AUTOSTART_BLOCK"
-  printf '\nexit 0\n'
-} > "$TMP_DIR/rc.local.new"
-
-install -m 0755 "$TMP_DIR/rc.local.new" "$RC_LOCAL"
+chmod +x "$INSTALL_DIR/run.sh"
+update_rc_local
 
 echo "[phaeton] Installed to $INSTALL_DIR"
-echo "[phaeton] Autostart configured in $RC_LOCAL"
+echo "[phaeton] Web UI: http://<gx-ip>:8088"
 echo "[phaeton] First start writes credentials to $INSTALL_DIR/config.yaml"
 echo "[phaeton] Free for personal use. Commercial use requires a license from Virtunet BV."
-echo "[phaeton] Reboot the GX or start now with: $RUN_SCRIPT"
-echo "[phaeton] Ensure Victron 'Modifications enabled' stays enabled for /data/rc.local to run."
+echo "[phaeton] Start now with: $INSTALL_DIR/run.sh"
+echo "[phaeton] Autostart configured in $RC_LOCAL"
+echo "[phaeton] Modbus server will run on alternate port (e.g., $ALT_PORT) automatically"

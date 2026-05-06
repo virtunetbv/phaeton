@@ -2,13 +2,17 @@
 
 Phaeton is a Victron EVCS protocol bridge for supported non-Victron EV chargers.
 
-## Install on Victron GX
+This public repository contains the public installer, license files, and release
+documentation. Stable install packages are published on the GitHub Releases page.
+
+## Install On Victron GX
 
 These steps are intended for Cerbo GX and other GX devices running Venus OS.
 
-### 1. Enable third-party software and SSH on the GX
+### 1. Enable Third-Party Software And SSH
 
-Before installing Phaeton, enable the Victron settings needed for SSH access and startup scripts.
+Before installing Phaeton, enable the Victron settings needed for SSH access and
+startup scripts.
 
 Use the official Victron root access guide for the current menu flow:
 
@@ -28,9 +32,11 @@ On the GX device:
 4. Enable `SSH on LAN` in `Settings -> General`.
 5. Open `Settings -> General -> Modification checks` and make sure `Modifications enabled` is enabled.
 
-`/data/rc.local` only works when modifications are enabled. If Venus OS renames it to `/data/rc.local.disabled`, re-enable modifications in that menu and rename the file back.
+`/data/rc.local` only works when modifications are enabled. If Venus OS renames
+it to `/data/rc.local.disabled`, re-enable modifications in that menu and rename
+the file back.
 
-### 2. Download the GX release package
+### 2. Run The Installer
 
 Fast path from your machine after SSH is enabled on the GX:
 
@@ -38,15 +44,19 @@ Fast path from your machine after SSH is enabled on the GX:
 ssh root@<gx-ip> 'curl -fsSL https://raw.githubusercontent.com/virtunetbv/phaeton/main/scripts/install-gx.sh | sh'
 ```
 
-That installer downloads the latest stable GX package, verifies `SHA256SUMS`, installs Phaeton into `/data/phaeton`, and creates or updates `/data/rc.local` for autostart.
-
-If you are already logged into the GX shell, you can run:
+If you are already logged into the GX shell, run:
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/virtunetbv/phaeton/main/scripts/install-gx.sh | sh
 ```
 
+The installer downloads the latest stable GX package, verifies `SHA256SUMS`,
+installs Phaeton into `/data/phaeton`, and creates or updates `/data/rc.local`
+for autostart.
+
 If you prefer the manual installation steps, use the process below.
+
+## Manual GX Install
 
 Public install packages are published on the Releases page:
 
@@ -63,8 +73,6 @@ Verify the download before installing:
 sha256sum -c SHA256SUMS
 ```
 
-### 3. Copy and install Phaeton on the GX
-
 Copy the release tarball to the GX:
 
 ```bash
@@ -80,19 +88,16 @@ tar -xzf /data/phaeton-<tag>-armv7-unknown-linux-gnueabihf.tar.gz -C /data/phaet
 chmod +x /data/phaeton/phaeton
 ```
 
-### 4. Test run
+Test run:
 
 ```bash
 /data/phaeton/phaeton
 ```
 
-On first start, Phaeton writes `config.yaml` in its data directory and generates the admin password there when authentication is enabled.
+On first start, Phaeton writes `config.yaml` in its data directory and generates
+the admin password there when authentication is enabled.
 
-### 5. Start Phaeton automatically on boot
-
-If you used the installer script above, this step is already done for you.
-
-Otherwise, create or edit `/data/rc.local`:
+To start Phaeton automatically on boot, create or edit `/data/rc.local`:
 
 ```sh
 cat >/data/rc.local <<'EOF'
@@ -108,12 +113,9 @@ Reboot the GX and confirm that Phaeton starts automatically.
 
 ## Releases
 
-Public install packages are published on the Releases page:
-
-https://github.com/virtunetbv/phaeton/releases
-
 Current release artifacts:
 
+- `phaeton-<tag>-arm-unknown-linux-gnueabihf.tar.gz`
 - `phaeton-<tag>-armv7-unknown-linux-gnueabihf.tar.gz`
 - `phaeton-<tag>-aarch64-unknown-linux-gnu.tar.gz`
 - `phaeton-<tag>-x86_64-unknown-linux-gnu.tar.gz`
