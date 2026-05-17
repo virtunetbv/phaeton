@@ -50,10 +50,11 @@ If you are already logged into the GX shell, run:
 curl -fsSL https://raw.githubusercontent.com/virtunetbv/phaeton/main/scripts/install-gx.sh | sh
 ```
 
-The installer downloads the latest stable GX package, verifies `SHA256SUMS`,
-installs Phaeton into `/data/phaeton`, and creates or updates `/data/rc.local`
-for autostart. It also starts Phaeton in the background and prints a web UI link
-using the detected GX IP address when available.
+The installer downloads the latest stable GX package, verifies the signed
+`SHA256SUMS` manifest and selected package, installs Phaeton into
+`/data/phaeton`, and creates or updates `/data/rc.local` for autostart. It also
+starts Phaeton in the background and prints a web UI link using the detected GX
+IP address when available.
 
 If you prefer the manual installation steps, use the process below.
 
@@ -67,10 +68,16 @@ For GX devices, download:
 
 - `phaeton-<tag>-armv7-unknown-linux-gnueabihf.tar.gz`
 - `SHA256SUMS`
+- `SHA256SUMS.sig`
+
+Use `release-signing-public.pem` from this repository as the trusted
+verification key.
 
 Verify the download before installing:
 
 ```bash
+openssl dgst -sha256 -sigopt rsa_padding_mode:pss -sigopt rsa_pss_saltlen:digest \
+  -verify release-signing-public.pem -signature SHA256SUMS.sig SHA256SUMS
 sha256sum -c SHA256SUMS
 ```
 
@@ -122,10 +129,16 @@ Current release artifacts:
 - `phaeton-<tag>-aarch64-unknown-linux-gnu.tar.gz`
 - `phaeton-<tag>-x86_64-unknown-linux-gnu.tar.gz`
 - `SHA256SUMS`
+- `SHA256SUMS.sig`
+
+Use `release-signing-public.pem` from this repository as the trusted
+verification key.
 
 Verify downloads before installing:
 
 ```bash
+openssl dgst -sha256 -sigopt rsa_padding_mode:pss -sigopt rsa_pss_saltlen:digest \
+  -verify release-signing-public.pem -signature SHA256SUMS.sig SHA256SUMS
 sha256sum -c SHA256SUMS
 ```
 

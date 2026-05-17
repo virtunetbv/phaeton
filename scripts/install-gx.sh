@@ -2,6 +2,7 @@
 set -eu
 
 GITHUB_API_URL="https://api.github.com/repos/virtunetbv/phaeton"
+PUBLIC_KEY_URL="https://raw.githubusercontent.com/virtunetbv/phaeton/main/release-signing-public.pem"
 INSTALL_DIR="/data/phaeton"
 ALT_PORT="1502"
 BINARY_PATH="$INSTALL_DIR/phaeton"
@@ -133,6 +134,11 @@ if [ "$ARCH" != "armv7l" ] && [ "$ARCH" != "armv7" ]; then
   exit 1
 fi
 
+if ! command -v openssl >/dev/null 2>&1; then
+  echo "openssl is required to verify signed release checksums." >&2
+  exit 1
+fi
+
 mkdir -p "$INSTALL_DIR"
 
 TMP_DIR=$(mktemp -d /tmp/phaeton-install.XXXXXX)
@@ -142,8 +148,9 @@ echo "[phaeton] Querying latest public GitHub release"
 RELEASE_JSON=$(curl -fsSL "$GITHUB_API_URL/releases/latest")
 ARCHIVE_URL=$(printf '%s\n' "$RELEASE_JSON" | sed -n 's/.*"browser_download_url": "\(https:[^"]*armv7-unknown-linux-gnueabihf\.tar\.gz\)".*/\1/p' | head -n 1)
 SHA_URL=$(printf '%s\n' "$RELEASE_JSON" | sed -n 's/.*"browser_download_url": "\(https:[^"]*SHA256SUMS\)".*/\1/p' | head -n 1)
+SIG_URL=$(printf '%s\n' "$RELEASE_JSON" | sed -n 's/.*"browser_download_url": "\(https:[^"]*SHA256SUMS\.sig\)".*/\1/p' | head -n 1)
 
-if [ -z "$ARCHIVE_URL" ] || [ -z "$SHA_URL" ]; then
+if [ -z "$ARCHIVE_URL" ] || [ -z "$SHA_URL" ] || [ -z "$SIG_URL" ]; then
   echo "Failed to locate armv7 release assets in the latest GitHub release." >&2
   exit 1
 fi
@@ -151,12 +158,27 @@ fi
 ARCHIVE_NAME=$(basename "$ARCHIVE_URL")
 ARCHIVE_PATH="$TMP_DIR/$ARCHIVE_NAME"
 SHA_PATH="$TMP_DIR/SHA256SUMS"
+SIG_PATH="$TMP_DIR/SHA256SUMS.sig"
+PUBKEY_PATH="$TMP_DIR/release-signing-public.pem"
 CHECK_PATH="$TMP_DIR/$ARCHIVE_NAME.sha256"
 STAGE_DIR="$TMP_DIR/stage"
 
 echo "[phaeton] Downloading release package $ARCHIVE_NAME"
 curl -fL "$ARCHIVE_URL" -o "$ARCHIVE_PATH"
 curl -fL "$SHA_URL" -o "$SHA_PATH"
+curl -fL "$SIG_URL" -o "$SIG_PATH"
+curl -fL "$PUBLIC_KEY_URL" -o "$PUBKEY_PATH"
+
+echo "[phaeton] Verifying signed checksum manifest"
+openssl dgst -sha256 \
+  -sigopt rsa_padding_mode:pss \
+  -sigopt rsa_pss_saltlen:digest \
+  -verify "$PUBKEY_PATH" \
+  -signature "$SIG_PATH" \
+  "$SHA_PATH" >/dev/null || {
+  echo "Release checksum signature verification failed." >&2
+  exit 1
+}
 
 grep "  $ARCHIVE_NAME\$" "$SHA_PATH" > "$CHECK_PATH" || {
   echo "Checksum entry for $ARCHIVE_NAME not found in SHA256SUMS." >&2

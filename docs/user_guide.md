@@ -115,7 +115,7 @@ curl -fsSL https://raw.githubusercontent.com/virtunetbv/phaeton/main/scripts/ins
 The installer:
 
 - downloads the latest stable public GitHub release
-- verifies the release package against `SHA256SUMS`
+- verifies the signed `SHA256SUMS` manifest and selected release package
 - installs Phaeton into `/data/phaeton`
 - writes `/data/phaeton/run.sh`
 - adds a managed Phaeton block to `/data/rc.local`
@@ -147,10 +147,16 @@ For most Cerbo GX installations, use:
 
 - `phaeton-<tag>-armv7-unknown-linux-gnueabihf.tar.gz`
 - `SHA256SUMS`
+- `SHA256SUMS.sig`
+
+Use `release-signing-public.pem` from the public repository as the trusted
+verification key.
 
 Verify the download:
 
 ```sh
+openssl dgst -sha256 -sigopt rsa_padding_mode:pss -sigopt rsa_pss_saltlen:digest \
+  -verify release-signing-public.pem -signature SHA256SUMS.sig SHA256SUMS
 sha256sum -c SHA256SUMS
 ```
 
