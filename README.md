@@ -145,6 +145,11 @@ debugging Phaeton:
 - the validity time is longer than Phaeton's current update interval
 - safe current is configured on the charger
 
+In the Phaeton charger profile screen, run `Test Alfen Control`. It should
+report that the Alfen setpoint is accounted for. If it does not, fix the
+charger-side EMS / Active Load Balancing configuration before debugging Auto
+mode thresholds.
+
 ## If Charging Does Not Start
 
 Use the Dashboard status reason first. It distinguishes setup or activation

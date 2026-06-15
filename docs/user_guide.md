@@ -337,6 +337,11 @@ Use the charger connection test before saving. If it fails:
 - confirm the charger and Phaeton are on the same network
 - check firewall rules between Phaeton and the charger
 
+For the built-in Alfen profile, also use `Test Alfen Control`. The test reads
+the charger EMS diagnostics, writes the current setpoint value back to Alfen
+register `1210`, and checks whether the charger reports that the setpoint is
+accounted for.
+
 ### Charger Profiles
 
 Built-in profiles are read-only. To change registers:
@@ -387,6 +392,12 @@ For Alfen chargers, confirm:
 - the configured charger profile is `alfen-eve`
 - the charger firmware exposes the expected Modbus registers
 - optional 1P/3P switching is enabled only if the installation supports it
+
+If `Test Alfen Control` completes but reports that the setpoint is not
+accounted for, the charger is reachable but is not accepting Phaeton as an EMS
+controller. Re-check the Active Load Balancing license, Data Source / EMS mode,
+TCP/IP EMS socket mode, write permission for maximum currents, validity time,
+and safe current.
 
 ## Configure Victron GX Integration
 
@@ -641,6 +652,7 @@ Check:
 - charger status says the EV is connected
 - Alfen EMS / Active Load Balancing settings allow Phaeton to write maximum
   current setpoints
+- for Alfen, `Test Alfen Control` reports that the setpoint is accounted for
 
 Recommended reproduction for support:
 
