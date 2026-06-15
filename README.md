@@ -120,6 +120,47 @@ chmod +x /data/rc.local
 
 Reboot the GX and confirm that Phaeton starts automatically.
 
+## Post-Install Checks
+
+Phaeton stores its writable files on Venus OS in `/data/phaeton`.
+
+Important files:
+
+- `/data/phaeton/config.yaml`
+- `/data/phaeton/state.json`
+- `/data/phaeton/phaeton.log`
+
+For Auto mode on a GX device, enable `Settings -> Services -> Modbus-TCP` on
+the GX and use Phaeton's GX test button before relying on PV-aware charging.
+Phaeton reads GX system data from unit ID `100`.
+
+For the built-in Alfen profile, confirm the charger-side settings before
+debugging Phaeton:
+
+- Active Load Balancing is licensed and enabled
+- EMS / TCP-IP EMS control is selected
+- Modbus TCP/IP is enabled
+- Modbus reading is allowed
+- writing maximum currents is allowed
+- the validity time is longer than Phaeton's current update interval
+- safe current is configured on the charger
+
+## If Charging Does Not Start
+
+Use the Dashboard status reason first. It distinguishes setup or activation
+blocking, charger connection loss, no EV connected, low battery SoC,
+phase-settling, schedule blocking, waiting for grid threshold, and waiting for
+solar surplus.
+
+Recommended support reproduction:
+
+1. Open `Logs`.
+2. Set log level to `DEBUG`.
+3. Clear displayed logs.
+4. Try Manual mode at `6 A`.
+5. If Manual works, switch back to Auto and wait for at least two poll cycles.
+6. Select `Download full log`.
+
 ## Releases
 
 Current release artifacts:

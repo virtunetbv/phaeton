@@ -377,10 +377,16 @@ relying on a custom profile.
 For Alfen chargers, confirm:
 
 - the charger has network connectivity
-- Modbus TCP is enabled
-- EMS or load balancing support is enabled where required
+- Active Load Balancing is licensed and enabled
+- the charger is configured for EMS / TCP-IP EMS control
+- Modbus TCP/IP is enabled on the charger
+- Modbus reading is allowed
+- writing maximum currents is allowed
+- the configured validity time is longer than Phaeton's current update interval
+- the safe current is configured on the charger
 - the configured charger profile is `alfen-eve`
 - the charger firmware exposes the expected Modbus registers
+- optional 1P/3P switching is enabled only if the installation supports it
 
 ## Configure Victron GX Integration
 
@@ -407,6 +413,12 @@ For Auto mode data:
 3. Set the GX host or IP.
 4. Set the GX Modbus TCP port, usually `502`.
 5. Use the test button to confirm live data.
+
+On Venus OS, enable the GX Modbus-TCP service in `Settings -> Services ->
+Modbus-TCP`. Phaeton reads documented GX system-service values from unit ID
+`100` for PV, grid, AC consumption, battery, ESS minimum SoC, and Multi state.
+If the GX test succeeds but Auto mode looks wrong, compare the dashboard values
+with the GX device list before changing thresholds.
 
 ## Using The Web UI
 
@@ -614,6 +626,12 @@ Check:
 
 Check:
 
+- the Dashboard status reason; it should say whether Phaeton is waiting for the
+  EV, charger connection, solar surplus, grid threshold, schedule, phase
+  settling, or battery SoC
+- setup and activation are complete; the bridge runtime does not control
+  charging while the wizard or activation page is active
+- Manual mode can start a charge at the EVSE minimum, usually `6 A`
 - Victron GX integration is enabled and test succeeds
 - PV, grid, load, and battery values appear plausible
 - configured minimum current is not too high
@@ -621,6 +639,28 @@ Check:
 - ESS minimum SoC limit is not blocking charging
 - current mode is actually Auto
 - charger status says the EV is connected
+- Alfen EMS / Active Load Balancing settings allow Phaeton to write maximum
+  current setpoints
+
+Recommended reproduction for support:
+
+1. Open `Logs`.
+2. Set the log level to `DEBUG`.
+3. Clear displayed logs.
+4. Switch to Manual mode, enable charging, and set `6 A`.
+5. If Manual works, switch back to Auto and wait for at least two poll cycles.
+6. Select `Download full log`.
+
+Useful status reasons:
+
+- `driver_not_running`: finish setup or activation first.
+- `charger_connection_lost`: fix charger IP, port, route, or Modbus settings.
+- `ev_disconnected`: the charger is reachable but reports no vehicle.
+- `low_soc`: battery SoC or ESS minimum SoC is blocking Auto mode.
+- `scheduled_inactive`: Scheduled mode has no active Planner window.
+- `auto_waiting_for_grid_threshold`: PV is available, but GX grid import/export
+  has not crossed the configured start threshold.
+- `auto_waiting_for_sun`: Auto mode does not have enough available PV power.
 
 ### Updates Fail
 
@@ -634,7 +674,7 @@ Check:
 
 ### Need Logs For Support
 
-Open `Logs` in the web UI and download the log file.
+Open `Logs` in the web UI and select `Download full log`.
 
 On Venus OS, the default log is:
 
