@@ -137,6 +137,15 @@ Phaeton reads GX system data from unit ID `100`.
 For the built-in Alfen profile, confirm the charger-side settings before
 debugging Phaeton:
 
+Alfen's charger-side setup is documented by Alfen, not duplicated here. Start
+at the Alfen Service Portal article
+[Smart Charging functionalities, Active Load Balancing, and Smart Charging
+Network](https://aceservice.alfen.com/en-us/knowledgebase/article/KA-01167).
+In that article, look for the attached `Smart Charging Guide` and
+`Configuration Guide Modbus ACE`. Useful ACE breadcrumbs are `Smart Charging` or
+`Load Balancing` -> `Active balancing` -> `Data Source: Energy Management
+System` -> `TCP/IP EMS`.
+
 - Active Load Balancing is licensed and enabled
 - EMS / TCP-IP EMS control is selected
 - Modbus TCP/IP is enabled

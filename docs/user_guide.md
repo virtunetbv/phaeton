@@ -379,7 +379,17 @@ relying on a custom profile.
 
 ### Alfen Notes
 
-For Alfen chargers, confirm:
+Phaeton does not duplicate Alfen's charger-side configuration manual. Use the
+official Alfen Service Portal documentation for the ACE Service Installer steps:
+
+- [Alfen Service Portal: Smart Charging functionalities, Active Load Balancing,
+  and Smart Charging Network](https://aceservice.alfen.com/en-us/knowledgebase/article/KA-01167)
+- In that Alfen article, look for the attached `Smart Charging Guide` and
+  `Configuration Guide Modbus ACE`.
+- Useful Alfen/ACE breadcrumbs: `Smart Charging` or `Load Balancing` ->
+  `Active balancing` -> `Data Source: Energy Management System` -> `TCP/IP EMS`.
+
+For Phaeton, the relevant Alfen settings to verify are:
 
 - the charger has network connectivity
 - Active Load Balancing is licensed and enabled
