@@ -135,24 +135,12 @@ the GX and use Phaeton's GX test button before relying on PV-aware charging.
 Phaeton reads GX system data from unit ID `100`.
 
 For the built-in Alfen profile, confirm the charger-side settings before
-debugging Phaeton:
+debugging Phaeton. Start with the hosted Alfen checklist:
 
-Alfen's charger-side setup is documented by Alfen, not duplicated here. Start
-at the Alfen Service Portal article
-[Smart Charging functionalities, Active Load Balancing, and Smart Charging
-Network](https://aceservice.alfen.com/en-us/knowledgebase/article/KA-01167).
-In that article, look for the attached `Smart Charging Guide` and
-`Configuration Guide Modbus ACE`. Useful ACE breadcrumbs are `Smart Charging` or
-`Load Balancing` -> `Active balancing` -> `Data Source: Energy Management
-System` -> `TCP/IP EMS`.
+https://phaeton.virtunet.io/docs/alfen-settings
 
-- Active Load Balancing is licensed and enabled
-- EMS / TCP-IP EMS control is selected
-- Modbus TCP/IP is enabled
-- Modbus reading is allowed
-- writing maximum currents is allowed
-- the validity time is longer than Phaeton's current update interval
-- safe current is configured on the charger
+This public repository also keeps the same checklist as a Markdown fallback:
+[`docs/alfen-settings-runbook.md`](docs/alfen-settings-runbook.md).
 
 In the Phaeton charger profile screen, run `Test Alfen Control`. It should
 report that the Alfen setpoint is accounted for. If it does not, fix the

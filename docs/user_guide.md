@@ -75,8 +75,10 @@ Current built-in charger profile:
 | --- | --- | --- |
 | Alfen Eve Pro-line / Single Pro-line | `alfen-eve` | Default built-in profile |
 
-For Alfen charger-side setup and troubleshooting, see the
-[Alfen settings checklist](alfen-settings-runbook.md).
+For Alfen charger-side setup and troubleshooting, start with the hosted
+[Alfen settings checklist](https://phaeton.virtunet.io/docs/alfen-settings).
+The same checklist is also kept as a Markdown fallback in
+[alfen-settings-runbook.md](alfen-settings-runbook.md).
 
 Additional chargers can be supported by adding charger definitions or custom
 charger profiles. The web UI includes a charger profile editor for advanced
@@ -383,9 +385,11 @@ relying on a custom profile.
 ### Alfen Notes
 
 Phaeton does not duplicate Alfen's charger-side configuration manual. Start with
-the practical [Alfen settings checklist](alfen-settings-runbook.md), then use
-the official Alfen Service Portal documentation for the ACE Service Installer
-steps:
+the hosted
+[Alfen settings checklist](https://phaeton.virtunet.io/docs/alfen-settings)
+or the Markdown fallback in
+[alfen-settings-runbook.md](alfen-settings-runbook.md), then use the official
+Alfen Service Portal documentation for the ACE Service Installer steps:
 
 - [Alfen Service Portal: Smart Charging functionalities, Active Load Balancing,
   and Smart Charging Network](https://aceservice.alfen.com/en-us/knowledgebase/article/KA-01167)
