@@ -666,7 +666,7 @@ Recommended reproduction for support:
 3. Clear displayed logs.
 4. Switch to Manual mode, enable charging, and set `6 A`.
 5. If Manual works, switch back to Auto and wait for at least two poll cycles.
-6. Select `Download full log`.
+6. Select `Support bundle`.
 
 Useful status reasons:
 
