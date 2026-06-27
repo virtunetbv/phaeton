@@ -75,6 +75,9 @@ Current built-in charger profile:
 | --- | --- | --- |
 | Alfen Eve Pro-line / Single Pro-line | `alfen-eve` | Default built-in profile |
 
+For Alfen charger-side setup and troubleshooting, see the
+[Alfen settings checklist](alfen-settings-runbook.md).
+
 Additional chargers can be supported by adding charger definitions or custom
 charger profiles. The web UI includes a charger profile editor for advanced
 users who need to clone a built-in profile and adjust registers.
@@ -379,8 +382,10 @@ relying on a custom profile.
 
 ### Alfen Notes
 
-Phaeton does not duplicate Alfen's charger-side configuration manual. Use the
-official Alfen Service Portal documentation for the ACE Service Installer steps:
+Phaeton does not duplicate Alfen's charger-side configuration manual. Start with
+the practical [Alfen settings checklist](alfen-settings-runbook.md), then use
+the official Alfen Service Portal documentation for the ACE Service Installer
+steps:
 
 - [Alfen Service Portal: Smart Charging functionalities, Active Load Balancing,
   and Smart Charging Network](https://aceservice.alfen.com/en-us/knowledgebase/article/KA-01167)
@@ -388,20 +393,6 @@ official Alfen Service Portal documentation for the ACE Service Installer steps:
   `Configuration Guide Modbus ACE`.
 - Useful Alfen/ACE breadcrumbs: `Smart Charging` or `Load Balancing` ->
   `Active balancing` -> `Data Source: Energy Management System` -> `TCP/IP EMS`.
-
-For Phaeton, the relevant Alfen settings to verify are:
-
-- the charger has network connectivity
-- Active Load Balancing is licensed and enabled
-- the charger is configured for EMS / TCP-IP EMS control
-- Modbus TCP/IP is enabled on the charger
-- Modbus reading is allowed
-- writing maximum currents is allowed
-- the configured validity time is longer than Phaeton's current update interval
-- the safe current is configured on the charger
-- the configured charger profile is `alfen-eve`
-- the charger firmware exposes the expected Modbus registers
-- optional 1P/3P switching is enabled only if the installation supports it
 
 If `Test Alfen Control` completes but reports that the setpoint is not
 accounted for, the charger is reachable but is not accepting Phaeton as an EMS
