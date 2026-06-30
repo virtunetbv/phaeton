@@ -699,6 +699,12 @@ On Venus OS, the default log is:
 /data/phaeton/phaeton.log
 ```
 
+For public support requests, prefer `Support bundle`. It includes the current
+status snapshot, diagnostics, and log content, but redacts paths, email
+addresses, secrets, and full device identifiers. IP addresses keep only the
+last octet, and serial, install, and license identifiers keep only their last
+four characters so support can still correlate repeated reports.
+
 ## Support Information
 
 When asking for help, include:
