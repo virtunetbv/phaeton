@@ -662,7 +662,7 @@ Check:
 Recommended reproduction for support:
 
 1. Open `Logs`.
-2. Set the log level to `DEBUG`.
+2. Set temporary log capture to `DEBUG`.
 3. Clear displayed logs.
 4. Switch to Manual mode, enable charging, and set `6 A`.
 5. If Manual works, switch back to Auto and wait for at least two poll cycles.
@@ -704,6 +704,10 @@ status snapshot, diagnostics, and log content, but redacts paths, email
 addresses, secrets, and full device identifiers. IP addresses keep only the
 last octet, and serial, install, and license identifiers keep only their last
 four characters so support can still correlate repeated reports.
+
+The Logs view level selector controls what is captured in the log file. DEBUG
+and TRACE are available for temporary diagnostics only; Phaeton automatically
+reverts them to INFO after 15 minutes to protect GX storage.
 
 ## Support Information
 

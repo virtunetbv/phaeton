@@ -129,8 +129,8 @@ When asking for help, include enough evidence to avoid guessing:
   Source, safe current, and the 1-/3-phase checkbox.
 - A screenshot of Alfen `TCP/IP EMS` showing mode and validity time.
 - A screenshot or copied text from Phaeton `Test Alfen Control`.
-- Phaeton full log from `Logs -> Download full log`; use `DEBUG` level while
-  reproducing the issue when possible.
+- Phaeton full log from `Logs -> Download full log`; enable temporary `DEBUG`
+  capture from the Logs view while reproducing the issue when possible.
 - Alfen charger logs or event export when available.
 - The exact time of the test and what was expected, for example "Manual 6 A did
   not change the charger" or "switch to 1 phase failed".
