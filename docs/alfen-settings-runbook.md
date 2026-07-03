@@ -34,15 +34,21 @@ In ACE Service Installer, check the Alfen Smart Charging / Load Balancing pages:
 | Active balancing | Data Source | Energy Management System |
 | Active balancing | Safe current | Set to a safe site-specific fallback current |
 | TCP/IP EMS | Mode | Socket for a single Phaeton-controlled charger |
-| TCP/IP EMS | Validity time | Longer than Phaeton's current update interval |
+| TCP/IP EMS | Validity time | `300 s` recommended, and always longer than Phaeton's current update interval |
 | Modbus TCP/IP | Allow reading | Enabled |
 | Modbus TCP/IP | Allow writing maximum currents | Enabled |
 | Active balancing | Allow 1- and 3-phased charging | Enabled when Phaeton may switch phases |
 
-The default Phaeton current update interval is `30000 ms`. With the default
-Alfen validity time of `60 s`, the charger has enough time to receive the next
-setpoint. If the site uses a shorter validity time or a longer Phaeton update
-interval, make the validity time comfortably longer than the Phaeton interval.
+The default Phaeton current update interval is `30000 ms`. Alfen's default
+validity time of `60 s` is enough for the default interval, but `300 s` gives a
+more comfortable field margin while still allowing the charger to fall back to
+safe current if Phaeton goes offline. If the site uses a shorter validity time
+or a longer Phaeton update interval, make the validity time comfortably longer
+than the Phaeton interval.
+
+For double-socket Alfen chargers, add and validate each controlled socket
+separately. The first socket, or a single-socket charger, uses socket slave ID
+`1`; the second socket uses socket slave ID `2`.
 
 Safe current is the charger's fallback when EMS setpoints expire or Phaeton is
 offline. It must be configured before Alfen will reliably accept maximum-current
@@ -118,6 +124,11 @@ Check:
 After changing the Alfen checkbox, try the phase change again from Manual mode
 before judging Auto mode. Auto mode may wait for phase-switch timers, solar
 surplus, schedule windows, or battery SoC rules.
+
+Phaeton intentionally verifies phase-switch support with a write and read-back
+instead of inferring support from voltage readings. Even when the Alfen setting
+is enabled, phase switching can fail or synchronize slowly, so use the Manual
+mode test and read-back result as the source of truth.
 
 ## Support Bundle
 
