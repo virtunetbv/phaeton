@@ -671,6 +671,7 @@ Recommended reproduction for support:
 Useful status reasons:
 
 - `driver_not_running`: finish setup or activation first.
+- `config_recovery`: repair `config.yaml` in Settings, then restart Phaeton.
 - `charger_connection_lost`: fix charger IP, port, route, or Modbus settings.
 - `ev_disconnected`: the charger is reachable but reports no vehicle.
 - `low_soc`: battery SoC or ESS minimum SoC is blocking Auto mode.
@@ -688,6 +689,19 @@ Check:
 - repository URL and token if using a private repository
 - uploaded file is an official Phaeton release `*.tar.gz`
 - logs for checksum, download, or unpack errors
+
+### Config Recovery
+
+If `config.yaml` is invalid, Phaeton starts a web-only recovery mode with safe
+defaults instead of stopping completely. Charger control and the EVCS Modbus
+server stay offline so default charger or GX addresses are not used for live
+runtime behavior.
+
+Open the web UI, go to `Settings`, and either save a corrected configuration,
+upload a valid config file, or reset to defaults. Phaeton preserves the invalid
+`config.yaml` until one of those explicit repair actions succeeds. After the
+repair is saved, restart Phaeton to leave recovery mode and start the bridge
+runtime normally.
 
 ### Need Logs For Support
 
