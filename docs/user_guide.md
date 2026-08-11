@@ -248,9 +248,14 @@ PHAETON_DATA_DIR=/path/to/phaeton-data phaeton
 On a fresh install, Phaeton enters the first-run setup wizard. While the wizard
 is pending, the bridge runtime is intentionally not started.
 
+Before opening the wizard, read `<data directory>/setup-claim.json` through
+local access or SSH. Enter its `token` value when prompted. This device-local
+claim authorizes creation of the first administrator and is removed after a
+successful setup.
+
 The wizard asks for:
 
-1. Admin username and password.
+1. The device-local setup claim, admin username, and password.
 2. Charger profile and optional charger connection details.
 3. Optional Victron GX host and port for Auto mode data.
 4. Final review.
@@ -259,6 +264,7 @@ After the wizard saves successfully:
 
 - Phaeton redirects to the sign-in page.
 - The new admin credentials are active.
+- The one-time setup claim is removed.
 - `config.yaml` is written to the data directory.
 - A restart may be required before all bridge services are active.
 
