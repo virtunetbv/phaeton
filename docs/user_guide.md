@@ -766,3 +766,39 @@ To wrap an older signed release, place its `phaeton-*.tar.gz`, original `SHA256S
 Max set current is a ceiling for Manual, Auto, Scheduled, and external control. The lower of this setting and the station current limit wins, including during Auto grace periods. Lowering a limit takes effect on the next eligible control cycle. Auto mode stops when the station limit falls below its minimum charging current.
 
 Changing the web address or port saves the setting but leaves the current listener active until restart. The save response and UI continue to indicate the pending restart on later saves. Reverting to the active address and port clears those warnings.
+
+## Single-phase-only installations
+
+For an installation that must never request three-phase charging, enable
+**Configuration → Charging Behavior → Installation → Single-phase only**.
+The setting is saved across restarts and applies immediately in Manual, Auto,
+Scheduled and external GX control. It takes precedence over saved phase choices
+and automatic phase switching. Existing installations leave it disabled by default.
+
+Phaeton holds charging at zero until fresh charger readback confirms one phase.
+If the charger reports three phases, Phaeton first writes zero current, waits for
+fresh stopped readings and the configured settling period, then requests and
+verifies one phase. It never sends a three-phase command or probe while this
+setting is enabled. A charger already reporting one phase does not need to
+support phase writes.
+
+The dashboard continues to show actual charger readback. Saving the configuration
+is not confirmation of a successful hardware transition: check the status reason
+and verify that the charger reports **1 phase**. Charging then follows the selected
+mode, start/stop intent, schedule and battery limits. External GX control must
+reacquire its lease after configuration changes.
+
+At the default 6 A minimum, the nominal single-phase minimum is 1,380 W
+(6 A × 230 V), rather than 4,140 W for three phases. Auto mode's other start
+conditions still apply; this setting does not lower minimum current or bypass
+battery, grid or installation limits.
+
+If readback is missing, stale or reports three phases, charging remains blocked.
+Check the charger's installation settings and supported phase controls. After an
+explicit rejection or mismatch, save configuration again, reconnect the charger,
+or request one phase through the existing phase API to retry. Transport failures
+use bounded retries with the configured phase-switch grace period. Fresh valid
+one-phase readback can clear the block without another phase write.
+
+Disabling the setting removes the restriction without immediately requesting
+three phases. Saved automatic-switching preferences become effective again.

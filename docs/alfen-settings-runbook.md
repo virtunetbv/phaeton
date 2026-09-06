@@ -148,3 +148,23 @@ When asking for help, include enough evidence to avoid guessing:
 
 Redact passwords, tokens, public IP addresses, and customer-specific network
 details before sharing logs or screenshots outside the trusted support boundary.
+
+## Single-Phase Supply
+
+For a single-phase installation, enable Phaeton's **Single-phase only** setting
+under **Configuration → Charging Behavior → Installation**. It takes effect
+immediately, survives restart, and prevents all three-phase requests, including
+from Auto mode and GX control.
+
+Confirm that Alfen reports **1 phase**. If it already does, Phaeton does not need
+phase-write permission. If it reports three phases, Phaeton stops current before
+attempting a verified change to one phase. A missing, rejected or mismatched
+readback keeps charging blocked and is explained in the dashboard status.
+Do not treat a saved setting as hardware confirmation or enable Alfen phase
+switching beyond what the physical installation supports.
+
+After correcting the Alfen configuration, save Phaeton configuration again or
+reconnect the charger to retry. Verify one-phase startup, a Phaeton restart,
+and Auto charging with sufficient single-phase surplus while all other start
+conditions are satisfied. Record the Alfen model and firmware when qualifying
+this behavior; software tests alone do not establish physical charging support.
