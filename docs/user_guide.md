@@ -803,12 +803,15 @@ one-phase readback can clear the block without another phase write.
 Disabling the setting removes the restriction without immediately requesting
 three phases. Saved automatic-switching preferences become effective again.
 
-## Using the local interface (0.45.0)
+## Using the local interface
 
 Use **Charging** for live power, the reason charging is running or waiting, mode
 selection and Start/Stop. Selecting a mode does not replace your start/stop intent.
 The Manual current slider respects the installation and station limits. When GX
-owns charging, its ownership is shown explicitly. Session totals follow the main
+owns charging, its ownership is shown explicitly. When Victron GX data is available, **Where the energy comes from** shows live
+Solar, Grid, Battery and Car readings, and the ribbon under them shows how much
+of the current session came from solar versus the grid. Sources without a
+reading are left out rather than shown as zero. Session totals follow the main
 controls; expand **Electrical details** or **Charging history** for more detail.
 Requested current is your preference; commanded current is what Phaeton sends.
 Older samples without commanded values have gaps in that series.
