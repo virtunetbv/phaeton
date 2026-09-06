@@ -770,7 +770,7 @@ Changing the web address or port saves the setting but leaves the current listen
 ## Single-phase-only installations
 
 For an installation that must never request three-phase charging, enable
-**Configuration → Charging Behavior → Installation → Single-phase only**.
+**Settings → Installation → Single-phase only**.
 The setting is saved across restarts and applies immediately in Manual, Auto,
 Scheduled and external GX control. It takes precedence over saved phase choices
 and automatic phase switching. Existing installations leave it disabled by default.
@@ -802,3 +802,38 @@ one-phase readback can clear the block without another phase write.
 
 Disabling the setting removes the restriction without immediately requesting
 three phases. Saved automatic-switching preferences become effective again.
+
+## Using the local interface (0.45.0)
+
+Use **Charging** for live power, the reason charging is running or waiting, mode
+selection and Start/Stop. Selecting a mode does not replace your start/stop intent.
+The Manual current slider respects the installation and station limits. When GX
+owns charging, its ownership is shown explicitly. Session totals follow the main
+controls; expand **Electrical details** or **Charging history** for more detail.
+Requested current is your preference; commanded current is what Phaeton sends.
+Older samples without commanded values have gaps in that series.
+
+Use **Schedule** to edit weekly charging windows and inspect the next window.
+These windows control charging when Scheduled mode is selected.
+
+**Settings** has four pages: Charging (autostart, solar and battery behavior),
+Installation (phase restriction and electrical limits), Connections (charger and
+GX), and System (timezone, pricing, access and service configuration). Technical
+options are in Advanced. Search opens the matching page. Edits remain a draft
+across page navigation until **Save changes** or **Discard changes**. Failed saves
+retain the draft and identify the field to correct. Hidden options retain their
+saved values.
+
+For a single-phase installation, enable **Settings → Installation → Single-phase
+only**, or select it during first setup. Saving applies the restriction; it does
+not confirm hardware readiness. The Charging page reports stopping, stopped-proof
+waiting, settling, phase confirmation, retry or rejection. An unknown or
+incompatible charger phase value stays visible in diagnostics. Phaeton will not
+allow current until fresh readback confirms one phase.
+
+**System** groups Health, Logs, Updates and License. Use the diagnostics link on
+a charging fault to inspect the actual charger phase and current limits. A
+connection test reads the charger; Alfen control tests write a current setpoint
+and are explicitly labelled. See the Alfen runbook before changing charger
+installation settings. Existing dashboard/configuration URLs still open the
+corresponding new pages.

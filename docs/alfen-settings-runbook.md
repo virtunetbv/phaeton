@@ -152,7 +152,7 @@ details before sharing logs or screenshots outside the trusted support boundary.
 ## Single-Phase Supply
 
 For a single-phase installation, enable Phaeton's **Single-phase only** setting
-under **Configuration → Charging Behavior → Installation**. It takes effect
+under **Settings → Installation**. It takes effect
 immediately, survives restart, and prevents all three-phase requests, including
 from Auto mode and GX control.
 
@@ -168,3 +168,19 @@ reconnect the charger to retry. Verify one-phase startup, a Phaeton restart,
 and Auto charging with sufficient single-phase surplus while all other start
 conditions are satisfied. Record the Alfen model and firmware when qualifying
 this behavior; software tests alone do not establish physical charging support.
+
+### Waiting for stopped-state confirmation
+
+In 0.45.0 the single-phase transition accepts Alfen NaN power channels only when
+all raw current channels are present, finite and zero, the status is non-charging,
+and the requested and applied EMS current diagnostics both confirm zero. A failed
+read, infinite value or contradictory nonzero measurement still prevents switching.
+The stricter GX phase-transition checks are unchanged.
+
+The sequence is zero-current write, fresh stopped proof, configured settling time,
+write 1 to phase register 1215, exact readback, then normal charging policy. Open
+**System → Health** to inspect readback and **System → Logs** for failures.
+Transport errors retry with the existing grace interval. For a rejected or
+mismatched phase request, correct the charger configuration and save settings or
+explicitly request one phase again. A fresh valid one-phase readback also clears
+the block. Do not force a register write around the stopped-state checks.
