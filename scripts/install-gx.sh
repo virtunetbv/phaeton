@@ -222,9 +222,9 @@ start_phaeton
 
 GX_IP=$(detect_gx_ip)
 if [ -n "$GX_IP" ]; then
-  WEB_UI_URL="http://$GX_IP:8088/"
+  WEB_UI_URL="https://$GX_IP:8088/"
 else
-  WEB_UI_URL="http://<gx-ip>:8088/"
+  WEB_UI_URL="https://<gx-ip>:8088/"
 fi
 
 echo "[phaeton] Installed to $INSTALL_DIR"

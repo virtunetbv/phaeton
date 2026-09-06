@@ -46,7 +46,7 @@ Phaeton:
 - can read Victron GX system data for PV-aware Auto mode
 
 The bridge runtime stays local to your installation. The web UI is served by the
-Phaeton process, normally at `http://<device-ip>:8088/`.
+Phaeton process, normally at `https://<device-ip>:8088/`.
 
 ## Before You Start
 
@@ -137,7 +137,7 @@ not already running, start it manually:
 Then open:
 
 ```text
-http://<gx-ip>:8088/
+https://<gx-ip>:8088/
 ```
 
 ### Manual GX Install
@@ -233,7 +233,7 @@ phaeton
 Open:
 
 ```text
-http://<host-ip>:8088/
+https://<host-ip>:8088/
 ```
 
 Phaeton stores writable files in the platform data directory. On Linux this is
@@ -249,9 +249,12 @@ On a fresh install, Phaeton enters the first-run setup wizard. While the wizard
 is pending, the bridge runtime is intentionally not started.
 
 Before opening the wizard, read `<data directory>/setup-claim.json` through
-local access or SSH. Enter its `token` value when prompted. This device-local
-claim authorizes creation of the first administrator and is removed after a
-successful setup.
+local access or SSH. Before accepting the browser's generated-certificate
+warning, compare its SHA-256 fingerprint with `certificate_sha256` in that
+file. Enter the file's `token` value when prompted. This device-local claim
+authorizes creation of the first administrator and is removed after a
+successful setup. The generated certificate and private key remain under the
+data directory so the device identity is stable across restarts.
 
 The wizard asks for:
 
@@ -447,7 +450,7 @@ with the GX device list before changing thresholds.
 Open:
 
 ```text
-http://<phaeton-host>:8088/
+https://<phaeton-host>:8088/
 ```
 
 Main areas:
@@ -575,13 +578,14 @@ Recommended security practices:
 - use a unique admin password
 - keep Phaeton on a trusted local network
 - do not expose port `8088` directly to the internet
-- use a trusted reverse proxy with TLS if remote access is required
+- verify the generated certificate fingerprint from the setup claim or local logs before accepting it in a browser
+- use a trusted reverse proxy with end-to-end TLS if remote access is required
 - keep CORS disabled unless a specific trusted integration needs it
 - restrict SSH access on the GX after installation
 - back up configuration and license files securely
 
 The browser UI uses local admin authentication after onboarding. API clients can
-use HTTP Basic Auth when authentication is enabled.
+use HTTP Basic Auth over HTTPS when authentication is enabled.
 
 ## Troubleshooting
 
@@ -750,3 +754,15 @@ Public releases:
 ```text
 https://github.com/virtunetbv/phaeton/releases
 ```
+
+## Manual updates with a signed bundle
+
+In Software Updates, select the official `.phaeton-update` download for your device platform. It contains the release archive and its signed checksum files. Phaeton verifies the release signature, package checksum, and platform before installation and restart. Plain `.tar.gz` uploads are no longer accepted; those archives remain available for installation and automatic updates.
+
+To wrap an older signed release, place its `phaeton-*.tar.gz`, original `SHA256SUMS`, and `SHA256SUMS.sig` in one directory. Run `bash scripts/package-signed-updates.sh <directory> <trusted-release-signing-public.pem>` using the trusted project key. Upload the resulting `.phaeton-update` file. No private signing key is needed.
+
+## Charging current and pending configuration changes
+
+Max set current is a ceiling for Manual, Auto, Scheduled, and external control. The lower of this setting and the station current limit wins, including during Auto grace periods. Lowering a limit takes effect on the next eligible control cycle. Auto mode stops when the station limit falls below its minimum charging current.
+
+Changing the web address or port saves the setting but leaves the current listener active until restart. The save response and UI continue to indicate the pending restart on later saves. Reverting to the active address and port clears those warnings.
