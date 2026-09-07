@@ -888,6 +888,13 @@ across page navigation until **Save changes** or **Discard changes**. Failed sav
 retain the draft and identify the field to correct. Hidden options retain their
 saved values.
 
+For optional VRM electricity prices, open **Settings → System → Pricing**.
+Create a token in VRM, paste it once and connect; enter the GX Portal ID if
+automatic discovery fails. Connection changes save immediately, separately from
+the Settings draft. Match the currency symbol and static fallback rate to your
+VRM installation. See [VRM electricity prices](vrm-pricing.md) for setup,
+fallback behavior and the limits of session cost estimates.
+
 **Start automatically when connected** enables charging when a car is detected,
 including when it is already plugged in as Phaeton starts. Saving this preference
 also updates the active autostart control. Auto and Scheduled modes still wait
