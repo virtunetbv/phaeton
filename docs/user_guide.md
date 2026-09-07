@@ -548,7 +548,17 @@ Use Scheduled when:
 - an operator wants predictable time-based behavior
 
 Schedules can include day selections, start time, end time, active state, and
-optional current limits.
+optional current limits. They can also require a VRM import price at or below a
+limit. In the editor, choose **Charge when → VRM price is at or below a limit**.
+Zero and negative prices are supported; missing prices pause charging. The first
+matching enabled window owns the decision, including over overlapping windows.
+
+Price-controlled windows can additionally require a **Minimum home battery (%)**.
+Missing GX battery readings then pause charging. Without a minimum, the home
+battery may supply charging. This is separate from Auto's battery settings.
+The price preview shows known time/price eligibility for the next three days;
+it does not guarantee an EV charge level or departure time. See
+[VRM electricity prices](vrm-pricing.md#charge-at-low-prices) for details.
 
 On the Schedule page, select a window in the week overview to show its Edit,
 Enable/Disable, and Delete actions. Drag the middle of a window to move it,
@@ -747,6 +757,11 @@ Useful status reasons:
 - `ev_disconnected`: the charger is reachable but reports no vehicle.
 - `low_soc`: battery SoC or ESS minimum SoC is blocking Auto mode.
 - `scheduled_inactive`: Scheduled mode has no active Planner window.
+- `scheduled_price_high`: the current VRM import price exceeds the active window's limit.
+- `scheduled_price_unavailable`: the current interval has no usable cached VRM price.
+- `scheduled_battery_low`: a price window's home-battery minimum is unmet or GX SoC is unavailable.
+- `scheduled_price_allowed`: the current price meets the active window's limit.
+- `scheduled_stopped`: a price-controlled window is held by manual Stop.
 - `auto_waiting_for_grid_threshold`: PV is available, but GX grid import/export
   has not crossed the configured start threshold.
 - `auto_waiting_for_sun`: Auto mode does not have enough available PV power.
