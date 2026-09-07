@@ -130,6 +130,39 @@ instead of inferring support from voltage readings. Even when the Alfen setting
 is enabled, phase switching can fail or synchronize slowly, so use the Manual
 mode test and read-back result as the source of truth.
 
+### Saved Phase-Switch Verification
+
+From v0.49.2, Phaeton saves an exactly verified transition between 1 and 3 phases
+for the current charger and installation. After a restart, it reads the product,
+firmware, serial and active phase again before restoring that capability. GX can
+then select either phase mode in Auto without repeating the initial qualification
+on every Phaeton restart. GX must acquire control again; saved verification never
+starts charging or selects a phase by itself.
+
+For an existing installation, create this record once after upgrading:
+
+1. Confirm the installation and vehicle support switching and enable the Alfen
+   `Allow 1- and 3-phased charging` checkbox.
+2. In Phaeton, allow automatic phase switching and leave **Single-phase only**
+   disabled only for an installation that supports three phases.
+3. Stop charging, select Manual and request the other phase count. Confirm exact
+   charger readback and the `Recorded verified 1P/3P switching` log entry. A
+   same-phase write is insufficient. Restore the preferred phase while stopped.
+4. Return to Auto for GX control. After an ordinary restart, look for
+   `Restored verified 1P/3P switching`; GX should see both phase modes.
+
+The saved evidence is invalidated when the charger endpoint, profile, product,
+firmware, serial or phase permissions change, or a phase write/readback fails.
+Unexpected phase readback also clears it. Requalify after correcting the cause.
+Incomplete identity or a disconnected charger cannot restore saved capability.
+
+Alfen's documented Modbus register 1215 reads/writes the selected number of phases;
+it does not expose the ACE permission checkbox. Phaeton therefore cannot notice
+that checkbox being changed independently until a phase command is affected.
+GX phase changes continue to stop, settle and verify exact readback before
+resuming current, even with saved verification. The file uses the existing batched
+state writer: loss or failure to save `state.json` requires qualification again.
+
 ## Support Bundle
 
 When asking for help, include enough evidence to avoid guessing:

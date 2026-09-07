@@ -491,6 +491,10 @@ system-data connection, not the charger discovery or control connection.
 **Charger & installation** contains the charger model/address, connection test and
 current/phase limits. Configured phase permissions are separate from the runtime
 capability readback: allowing switching does not establish that it has been verified.
+From v0.49.2, a successful distinct 1P/3P transition is saved for the matching charger
+and installation. Fresh charger identity and phase readback are required to restore
+it after a restart. See [phase-switch verification](alfen-settings-runbook.md#saved-phase-switch-verification)
+for the initial test and conditions that invalidate it.
 Register mappings, ports, identities and tuning are in contextual **Advanced**
 disclosures. Reset is under **System → Maintenance → Advanced**. System also links
 to the existing update, diagnostic and log pages.
