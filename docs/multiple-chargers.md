@@ -85,6 +85,14 @@ that instance first; a live instance's lock prevents installer replacement.
 Reinstallation with the same name and port preserves its identity and data.
 Existing unnamed installer usage remains supported.
 
+Use 0.52.1 or newer for named-instance GX discovery. Earlier named deployments
+generated MQTT device IDs containing hyphens, which Venus OS 3.80~39 rejects in
+its D-Bus settings paths. The updated runtime maps these hyphens to underscores
+for GX discovery while retaining the saved deployment identity, MQTT client ID
+and license. If the GX MQTT integration is stuck retrying a failed discovery,
+stop the affected old instances before restarting that integration with all
+chargers idle. This briefly interrupts GX registration for every MQTT charger.
+
 To start a stopped instance:
 
 ```sh
