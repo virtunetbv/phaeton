@@ -3,15 +3,90 @@ set -eu
 
 GITHUB_API_URL="https://api.github.com/repos/virtunetbv/phaeton"
 PUBLIC_KEY_URL="https://raw.githubusercontent.com/virtunetbv/phaeton/main/release-signing-public.pem"
-INSTALL_DIR="/data/phaeton"
-ALT_PORT="1502"
-BINARY_PATH="$INSTALL_DIR/phaeton"
-BINARY_TMP="$INSTALL_DIR/phaeton.new"
-RC_LOCAL="/data/rc.local"
-RC_LOCAL_TMP="$INSTALL_DIR/rc.local.new"
-RC_LOCAL_INPUT="$INSTALL_DIR/rc.local.input"
+DATA_ROOT="/data"
+INSTANCE_NAME=""
+INSTANCE_SET=0
+DEMO=0
+WEB_PORT="8088"
 
-echo "[phaeton] Cerbo GX installer"
+usage() {
+  echo "Usage: install-gx.sh [--instance NAME --web-port PORT [--demo]]"
+  echo "Named instances use MQTT/GX control and independent data and activation."
+}
+
+parse_options() {
+  while [ "$#" -gt 0 ]; do
+    case "$1" in
+      --instance|--web-port)
+        if [ "$#" -lt 2 ]; then
+          usage >&2
+          return 1
+        fi
+        case "$1" in
+          --instance) INSTANCE_NAME="$2"; INSTANCE_SET=1 ;;
+          --web-port) WEB_PORT="$2" ;;
+        esac
+        shift 2
+        ;;
+      --demo) DEMO=1; shift ;;
+      --help|-h) usage; exit 0 ;;
+      *) usage >&2; return 1 ;;
+    esac
+  done
+  case "$WEB_PORT" in
+    ''|*[!0-9]*|0*) echo "Invalid web port" >&2; return 1 ;;
+  esac
+  if [ "${#WEB_PORT}" -gt 5 ] || [ "$WEB_PORT" -lt 1024 ] || [ "$WEB_PORT" -gt 65535 ]; then
+    echo "Web port must be between 1024 and 65535" >&2
+    return 1
+  fi
+  if [ "$INSTANCE_SET" = 1 ] && [ -z "$INSTANCE_NAME" ]; then
+    echo "Instance name must not be empty" >&2
+    return 1
+  fi
+  if [ -n "$INSTANCE_NAME" ]; then
+    case "$INSTANCE_NAME" in
+      [!a-z0-9]*|*[!a-z0-9-]*) echo "Invalid instance name" >&2; return 1 ;;
+    esac
+    if [ "${#INSTANCE_NAME}" -gt 32 ] || [ "$WEB_PORT" = 8088 ]; then
+      echo "Use a name up to 32 characters and a dedicated web port (not 8088)" >&2
+      return 1
+    fi
+    INSTALL_DIR="$DATA_ROOT/phaeton-instances/$INSTANCE_NAME"
+    AUTOSTART_BEGIN="# Phaeton instance $INSTANCE_NAME autostart begin"
+    AUTOSTART_END="# Phaeton instance $INSTANCE_NAME autostart end"
+  else
+    if [ "$DEMO" = 1 ]; then
+      echo "--demo requires --instance" >&2
+      return 1
+    fi
+    if [ "$WEB_PORT" != 8088 ]; then
+      echo "--web-port requires --instance" >&2
+      return 1
+    fi
+    INSTALL_DIR="$DATA_ROOT/phaeton"
+    AUTOSTART_BEGIN="# Phaeton autostart begin"
+    AUTOSTART_END="# Phaeton autostart end"
+  fi
+  BINARY_PATH="$INSTALL_DIR/phaeton"
+  BINARY_TMP="$INSTALL_DIR/phaeton.new"
+  RC_LOCAL="$DATA_ROOT/rc.local"
+  RC_LOCAL_TMP="$INSTALL_DIR/rc.local.new"
+  RC_LOCAL_INPUT="$INSTALL_DIR/rc.local.input"
+}
+
+check_instance_port() {
+  [ -n "$INSTANCE_NAME" ] || return 0
+  for other in "$DATA_ROOT"/phaeton-instances/*/instance.json; do
+    [ -f "$other" ] || continue
+    [ "$other" != "$INSTALL_DIR/instance.json" ] || continue
+    port=$(sed -n 's/.*"web_port"[[:space:]]*:[[:space:]]*\([0-9]*\).*/\1/p' "$other")
+    if [ "$port" = "$WEB_PORT" ]; then
+      echo "Web port $WEB_PORT is already assigned by $other" >&2
+      return 1
+    fi
+  done
+}
 
 update_rc_local() {
   if [ -f "$RC_LOCAL" ]; then
@@ -27,18 +102,19 @@ update_rc_local() {
     printf '%s\n' '#!/bin/sh' > "$RC_LOCAL_INPUT"
   fi
 
-  awk '
-    $0 == "# Phaeton autostart begin" { skipping = 1; next }
-    $0 == "# Phaeton autostart end" { skipping = 0; next }
+  awk -v begin="$AUTOSTART_BEGIN" -v end="$AUTOSTART_END" \
+    -v run="$INSTALL_DIR/run.sh &" -v legacy="$INSTANCE_NAME" '
+    $0 == begin { skipping = 1; next }
+    $0 == end { skipping = 0; next }
     skipping { next }
-    $0 == "cd /data/phaeton && /data/phaeton/phaeton &" { next }
-    $0 == "cd /data/phaeton && ./phaeton &" { next }
-    $0 == "/data/phaeton/phaeton >> /data/phaeton.log 2>&1 &" { next }
-    $0 == "/data/phaeton/run.sh &" { next }
+    legacy == "" && $0 == "cd /data/phaeton && /data/phaeton/phaeton &" { next }
+    legacy == "" && $0 == "cd /data/phaeton && ./phaeton &" { next }
+    legacy == "" && $0 == "/data/phaeton/phaeton >> /data/phaeton.log 2>&1 &" { next }
+    legacy == "" && $0 == "/data/phaeton/run.sh &" { next }
     $0 == "exit 0" && !inserted {
-      print "# Phaeton autostart begin"
-      print "/data/phaeton/run.sh &"
-      print "# Phaeton autostart end"
+      print begin
+      print run
+      print end
       inserted = 1
       has_exit = 1
       print
@@ -52,9 +128,9 @@ update_rc_local() {
     { print }
     END {
       if (!inserted) {
-        print "# Phaeton autostart begin"
-        print "/data/phaeton/run.sh &"
-        print "# Phaeton autostart end"
+        print begin
+        print run
+        print end
       }
       if (!has_exit) {
         print "exit 0"
@@ -84,17 +160,27 @@ detect_gx_ip() {
 }
 
 is_phaeton_running() {
-  if command -v pidof >/dev/null 2>&1; then
-    pidof phaeton >/dev/null 2>&1
-    return
-  fi
-
-  if command -v pgrep >/dev/null 2>&1; then
-    pgrep -x phaeton >/dev/null 2>&1
-    return
-  fi
-
+  # Executable paths distinguish instances, including a running binary replaced
+  # by an update (Linux appends " (deleted)" to that symlink target).
+  for process in /proc/[0-9]*/exe; do
+    target=$(readlink "$process" 2>/dev/null || true)
+    case "$target" in
+      "$BINARY_PATH"|"$BINARY_PATH (deleted)") return 0 ;;
+    esac
+  done
   return 1
+}
+
+write_run_script() {
+  cat > "$INSTALL_DIR/run.sh" <<RUN
+#!/bin/sh
+set -e
+export PHAETON_DATA_DIR='$INSTALL_DIR'
+export RUST_LOG=info
+cd '$INSTALL_DIR'
+exec '$BINARY_PATH'
+RUN
+  chmod +x "$INSTALL_DIR/run.sh"
 }
 
 start_phaeton() {
@@ -118,6 +204,12 @@ start_phaeton() {
   fi
 }
 
+# Runtime installation begins here.
+parse_options "$@"
+check_instance_port
+
+echo "[phaeton] Cerbo GX installer${INSTANCE_NAME:+: $INSTANCE_NAME}"
+
 if [ "$(id -u)" != "0" ]; then
   echo "This script must run as root (GX shell)." >&2
   exit 1
@@ -139,10 +231,21 @@ if ! command -v openssl >/dev/null 2>&1; then
   exit 1
 fi
 
+mkdir -p "$DATA_ROOT"
+# Serialize installers because all instances share rc.local and the port map.
+INSTALL_LOCK="$DATA_ROOT/.phaeton-install.lock"
+if ! mkdir "$INSTALL_LOCK" 2>/dev/null; then
+  echo "Another installer is active; if it crashed, remove $INSTALL_LOCK after checking processes." >&2
+  exit 1
+fi
+TMP_DIR=""
+trap '[ -z "$TMP_DIR" ] || rm -rf "$TMP_DIR"; rmdir "$INSTALL_LOCK"' EXIT
+trap 'exit 1' INT TERM
+check_instance_port
 mkdir -p "$INSTALL_DIR"
+chmod 0700 "$INSTALL_DIR"
 
 TMP_DIR=$(mktemp -d /tmp/phaeton-install.XXXXXX)
-trap 'rm -rf "$TMP_DIR"' EXIT INT TERM
 
 echo "[phaeton] Querying latest public GitHub release"
 RELEASE_JSON=$(curl -fsSL "$GITHUB_API_URL/releases/latest")
@@ -199,6 +302,18 @@ if [ ! -f "$STAGE_DIR/phaeton" ]; then
   exit 1
 fi
 
+# Initialize with the verified new binary before replacing any installed files.
+# Reinstalling a live named instance is refused by its process lock; use that
+# instance's web updater, or stop it first, then rerun this installer.
+if [ -n "$INSTANCE_NAME" ]; then
+  chmod 0755 "$STAGE_DIR/phaeton"
+  if [ "$DEMO" = 1 ]; then
+    PHAETON_DATA_DIR="$INSTALL_DIR" "$STAGE_DIR/phaeton" --init-instance "$INSTANCE_NAME" "$WEB_PORT" --demo
+  else
+    PHAETON_DATA_DIR="$INSTALL_DIR" "$STAGE_DIR/phaeton" --init-instance "$INSTANCE_NAME" "$WEB_PORT"
+  fi
+fi
+
 rm -rf "$INSTALL_DIR/webui"
 rm -f "$BINARY_TMP"
 cp "$STAGE_DIR/phaeton" "$BINARY_TMP"
@@ -208,23 +323,15 @@ if [ -d "$STAGE_DIR/webui" ]; then
   cp -R "$STAGE_DIR/webui" "$INSTALL_DIR/"
 fi
 
-cat > "$INSTALL_DIR/run.sh" <<'RUN'
-#!/bin/sh
-set -e
-export PHAETON_DATA_DIR=/data/phaeton
-export RUST_LOG=info
-exec /data/phaeton/phaeton
-RUN
-
-chmod +x "$INSTALL_DIR/run.sh"
+write_run_script
 update_rc_local
 start_phaeton
 
 GX_IP=$(detect_gx_ip)
 if [ -n "$GX_IP" ]; then
-  WEB_UI_URL="https://$GX_IP:8088/"
+  WEB_UI_URL="https://$GX_IP:$WEB_PORT/"
 else
-  WEB_UI_URL="https://<gx-ip>:8088/"
+  WEB_UI_URL="https://<gx-ip>:$WEB_PORT/"
 fi
 
 echo "[phaeton] Installed to $INSTALL_DIR"
@@ -233,4 +340,9 @@ echo "[phaeton] Open this URL in your browser: $WEB_UI_URL"
 echo "[phaeton] First start serves the onboarding wizard at $WEB_UI_URL"
 echo "[phaeton] Free for personal use. Commercial use requires a license from Virtunet BV."
 echo "[phaeton] Autostart configured in $RC_LOCAL"
-echo "[phaeton] Modbus server will run on alternate port (e.g., $ALT_PORT) automatically"
+if [ -n "$INSTANCE_NAME" ]; then
+  echo "[phaeton] MQTT instance: configure its Alfen charger in the wizard and activate it."
+  echo "[phaeton] Auto charging requires a GX controller; qualify shared power limits before use."
+else
+  echo "[phaeton] Modbus server will run on alternate port 1502 automatically"
+fi

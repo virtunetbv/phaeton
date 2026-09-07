@@ -117,6 +117,10 @@ Or, from a GX shell:
 curl -fsSL https://raw.githubusercontent.com/virtunetbv/phaeton/main/scripts/install-gx.sh | sh
 ```
 
+For multiple physical chargers on the same GX, use
+[named MQTT instances](multiple-chargers.md), with a dedicated web port and
+activation for each charger.
+
 The installer:
 
 - downloads the latest stable public GitHub release

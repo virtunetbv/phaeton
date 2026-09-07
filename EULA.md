@@ -12,7 +12,7 @@ The Software is licensed, not sold. The Software and all intellectual property r
 
 ## 2. Personal Use License
 
-Subject to this Agreement, Virtunet grants you a limited, non-exclusive, non-transferable, non-sublicensable, revocable license to install and use the Software free of charge solely for Personal Use.
+Subject to this Agreement, Virtunet grants you a limited, non-exclusive, non-transferable, non-sublicensable, revocable license to install and use the Software solely for Personal Use. One home entitlement per verified account is free of charge; additional home entitlements may be purchased at the one-time price agreed in Stripe Checkout, with one active installation per entitlement.
 
 "Personal Use" means private, individual, non-commercial use by a natural person for personal purposes only, and not:
 

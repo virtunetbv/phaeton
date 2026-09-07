@@ -5,6 +5,10 @@ Phaeton is a Victron EVCS protocol bridge for supported non-Victron EV chargers.
 This public repository contains the public installer, license files, and release
 documentation. Stable install packages are published on the GitHub Releases page.
 
+Multiple chargers on one GX can use [named MQTT installations](docs/multiple-chargers.md)
+with independent web interfaces and GX-owned Auto control. This requires Phaeton
+0.51.0 or newer, separate activations and site qualification of shared charging.
+
 ## Install On Victron GX
 
 These steps are intended for Cerbo GX and other GX devices running Venus OS.
