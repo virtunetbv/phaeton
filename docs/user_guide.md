@@ -330,7 +330,7 @@ If the license is invalid or missing, Phaeton returns to activation mode.
 
 ## Configure The Charger
 
-Open `Configuration -> Charger`.
+Open `Settings -> Charger & installation`.
 
 Set:
 
@@ -433,7 +433,7 @@ For non-GX installs:
 
 For Auto mode data:
 
-1. Open the first-run wizard or `Configuration -> Victron GX`.
+1. Open the first-run wizard or `Settings -> Victron GX -> Solar & battery readings`.
 2. Enable Victron GX integration.
 3. Set the GX host or IP.
 4. Set the GX Modbus TCP port, usually `502`.
@@ -455,15 +455,49 @@ https://<phaeton-host>:8088/
 
 Main areas:
 
-- Dashboard: live state and charging controls
-- Planner: scheduled charging windows
-- Configuration: charger, Victron GX, controls, web, logging, and updates
-- Updates: install local packages or remote releases
-- Logs: inspect and download logs
+- Charging: live state and charging controls
+- Schedule: scheduled charging windows
+- Settings: Charging, Charger & installation, Victron GX, and System
+- System: health, diagnostics, updates and logs
 - License chip: inspect license status
 
-The UI supports light and dark mode. The selected theme is stored in the
-browser.
+The UI supports light, dark and automatic themes. The selected theme is stored in
+the browser; automatic follows the device's color preference.
+
+### Settings and charging ownership
+
+Settings has a section navigation on desktop and a section selector on phones.
+Every section edits the same draft. Nothing is saved until **Apply changes** is
+selected. **Discard** restores the last loaded configuration. The draft bar appears
+only while changes exist; failed saves keep the draft. Changes saved elsewhere,
+such as Schedule edits, are preserved unless they conflict with the same setting.
+Conflicting changes and validation errors identify the affected field.
+
+Under **Charging**, choose **Charging managed by: Phaeton / Victron GX**:
+
+- **Phaeton** uses local solar, battery and grid-assist preferences in Auto. Choosing
+  it disables GX charging control and preserves the existing discovery connection.
+- **Victron GX** enables MQTT discovery and GX control together and disables the
+  legacy Modbus producer. GX supplies Auto charging commands; local preferences
+  remain stored but are labelled inactive. Broker addresses and identities are
+  retained. Select Auto separately on the Charging page if it is not already active.
+
+Changing the controller does not change Manual/Scheduled mode or send a Start
+command. Discovery alone does not transfer charging control. The advanced discovery
+choice under **Victron GX** supports legacy Modbus, MQTT discovery and no connection
+when Phaeton manages charging. **Solar & battery readings** is an independent GX
+system-data connection, not the charger discovery or control connection.
+
+**Charger & installation** contains the charger model/address, connection test and
+current/phase limits. Configured phase permissions are separate from the runtime
+capability readback: allowing switching does not establish that it has been verified.
+Register mappings, ports, identities and tuning are in contextual **Advanced**
+disclosures. Reset is under **System → Maintenance → Advanced**. System also links
+to the existing update, diagnostic and log pages.
+
+Search covers all sections and advanced settings. Results include section
+breadcrumbs. Selecting a result reveals it without modifying configuration; inactive
+settings explain when they apply. Existing configuration section links still work.
 
 ## Charging Modes
 
@@ -480,22 +514,20 @@ Use Manual when:
 
 ### Auto
 
-Auto mode uses charger data and Victron GX system data to make PV-aware charging
-decisions.
+Auto is one charging mode with two possible controllers:
 
-Auto mode can use:
+- With **Phaeton** as controller, the caption says **Follows solar surplus**.
+  Phaeton uses GX solar, grid, load and battery readings with local charging
+  preferences. Reliable data is needed for these local decisions.
+- With **Victron GX** as controller, the caption says **Controlled by GX**.
+  Status distinguishes Waiting for GX, Paused by GX, Waiting for vehicle,
+  Preparing phase change, and Charging — controlled by GX. If GX loses control,
+  Phaeton holds charging while waiting for GX; it does not fall back to local solar
+  rules. Installation verification, connection failures and faults remain visible.
 
-- PV power
-- AC load
-- grid import/export
-- battery state of charge
-- ESS minimum SoC limit
-- configured minimum and maximum current
-- phase switching settings
-
-Auto mode depends on reliable GX data. If the GX integration is disabled or not
-reachable, Auto mode has less information and may stop or avoid charging
-depending on configuration.
+The dashboard follows saved runtime state, not an unsaved Settings draft. Older
+status snapshots without ownership information use **Automatic charging**. Selecting
+GX does not activate Dynamic ESS or Opportunity Loads scheduling services.
 
 ### Scheduled
 
