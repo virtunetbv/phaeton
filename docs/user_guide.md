@@ -880,6 +880,14 @@ across page navigation until **Save changes** or **Discard changes**. Failed sav
 retain the draft and identify the field to correct. Hidden options retain their
 saved values.
 
+**Start automatically when connected** enables charging when a car is detected,
+including when it is already plugged in as Phaeton starts. Saving this preference
+also updates the active autostart control. Auto and Scheduled modes still wait
+for their solar, battery and schedule conditions. A manual Stop remains in effect
+until the car is disconnected and connected again, or you enable charging.
+When GX Auto control is enabled, GX owns starting charging and local autostart
+is suppressed.
+
 For a single-phase installation, enable **Settings → Installation → Single-phase
 only**, or select it during first setup. Saving applies the restriction; it does
 not confirm hardware readiness. The Charging page reports stopping, stopped-proof
