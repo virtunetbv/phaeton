@@ -542,6 +542,27 @@ Use Scheduled when:
 Schedules can include day selections, start time, end time, active state, and
 optional current limits.
 
+On the Schedule page, select a window in the week overview to show its Edit,
+Enable/Disable, and Delete actions. Drag the middle of a window to move it,
+or drag its left or right edge to change the start or end time. Changes use
+15-minute steps and save when you release; press Escape or release outside
+the week to cancel. A failed save restores the previous schedule.
+
+A time change applies to every repeat day of that schedule. Moving a window
+to another day shifts all its repeat days together. Overnight windows continue
+on the next row, including Sunday into Monday. Overlapping schedules stay
+separate and retain their existing order of precedence.
+
+Click a day label or Add schedule to create a window. Double-clicking an empty
+track starts a new window at that time. Click the exact-time text below a track,
+double-click a window, or use Edit for the time, repeat days and current limit
+form. Disabled windows remain visible and editable.
+
+With a window focused, Left/Right moves it by 15 minutes and Up/Down shifts
+its repeat days. Left/Right on an edge handle resizes that edge. Enter opens
+the editor. On phones, scroll the week horizontally or use the day labels and
+exact-time buttons to manage windows without dragging.
+
 ## Updates
 
 Open `Updates`.
