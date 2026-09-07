@@ -175,7 +175,9 @@ In 0.45.0 the single-phase transition accepts Alfen NaN power channels only when
 all raw current channels are present, finite and zero, the status is non-charging,
 and the requested and applied EMS current diagnostics both confirm zero. A failed
 read, infinite value or contradictory nonzero measurement still prevents switching.
-The stricter GX phase-transition checks are unchanged.
+From 0.47.0, GX phase transitions can use the same qualified raw Alfen evidence.
+They retain the zero-write, settle, admitted-phase and exact-readback requirements;
+unavailable power alone never authorizes switching.
 
 The sequence is zero-current write, fresh stopped proof, configured settling time,
 write 1 to phase register 1215, exact readback, then normal charging policy. Open
