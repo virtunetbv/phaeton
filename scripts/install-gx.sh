@@ -110,6 +110,7 @@ update_rc_local() {
     legacy == "" && $0 == "cd /data/phaeton && /data/phaeton/phaeton &" { next }
     legacy == "" && $0 == "cd /data/phaeton && ./phaeton &" { next }
     legacy == "" && $0 == "/data/phaeton/phaeton >> /data/phaeton.log 2>&1 &" { next }
+    legacy == "" && $0 == "/data/phaeton/phaeton >> /data/phaeton/phaeton.log 2>&1 &" { next }
     legacy == "" && $0 == "/data/phaeton/run.sh &" { next }
     $0 == "exit 0" && !inserted {
       print begin
@@ -196,12 +197,101 @@ start_phaeton() {
     (cd "$INSTALL_DIR" && "$INSTALL_DIR/run.sh" >/dev/null 2>&1 &)
   fi
 
-  sleep 2
-  if is_phaeton_running; then
-    echo "[phaeton] Phaeton started"
-  else
-    echo "[phaeton] Phaeton start was requested; check $INSTALL_DIR/phaeton.log if the web UI is not reachable"
+  wait_for_web_ui
+}
+
+wait_for_web_ui() {
+  echo "[phaeton] Waiting for the Phaeton web interface"
+  attempts=0
+  while [ "$attempts" -lt 30 ]; do
+    # The loopback readiness probe is not a remote trust decision. Users verify
+    # the device certificate using the private handoff below.
+    if is_phaeton_running; then
+      status=$(curl --silent --insecure --noproxy '*' --max-time 2 \
+        --output /dev/null --write-out '%{http_code}' \
+        "https://127.0.0.1:$WEB_PORT/" 2>/dev/null || true)
+      case "$status" in
+        200|302|303|307) return 0 ;;
+      esac
+    fi
+    attempts=$((attempts + 1))
+    sleep 1
+  done
+  echo "[phaeton] The web interface did not become ready; installation is not complete." >&2
+  echo "[phaeton] Check $INSTALL_DIR/phaeton.log and whether port $WEB_PORT is in use." >&2
+  echo "[phaeton] After resolving the error, run $INSTALL_DIR/run.sh if Phaeton is stopped." >&2
+  return 1
+}
+
+download_file() {
+  if ! curl -fL --connect-timeout 15 --max-time 300 --retry 2 "$1" -o "$2"; then
+    echo "[phaeton] Download failed. Check internet access on the GX, then rerun the installation command." >&2
+    return 1
   fi
+}
+
+check_install_prerequisites() {
+  for tool in curl openssl sha256sum tar awk sed grep mktemp readlink df du; do
+    if ! command -v "$tool" >/dev/null 2>&1; then
+      echo "[phaeton] Required tool is missing: $tool. Use a supported Venus OS installation." >&2
+      return 1
+    fi
+  done
+  if [ -f "$RC_LOCAL.disabled" ]; then
+    echo "[phaeton] A disabled startup file exists: $RC_LOCAL.disabled" >&2
+    echo "[phaeton] Enable General > Modification checks > Modifications enabled first." >&2
+    echo "[phaeton] Restore the disabled file to $RC_LOCAL before retrying; if both files exist, merge their commands with administrator help." >&2
+    return 1
+  fi
+  echo "[phaeton] Keep General > Modification checks > Modifications enabled on for startup."
+}
+
+check_free_space() {
+  available=$(df -Pk "$1" | awk 'END {print $4}')
+  case "$available" in
+    ''|*[!0-9]*) echo "[phaeton] Unable to check free space in $1." >&2; return 1 ;;
+  esac
+  if [ "$available" -lt "$2" ]; then
+    echo "[phaeton] Not enough free space in $1: need at least $2 KiB. Free space before retrying." >&2
+    return 1
+  fi
+}
+
+check_web_port() {
+  port_hex=$(printf '%04X' "$WEB_PORT")
+  for sockets in /proc/net/tcp /proc/net/tcp6; do
+    [ -r "$sockets" ] || continue
+    if awk -v port=":$port_hex" '$2 ~ (port "$") && $4 == "0A" {found=1} END {exit !found}' "$sockets"; then
+      echo "[phaeton] Web port $WEB_PORT is already in use. Resolve the conflict before installing Phaeton." >&2
+      return 1
+    fi
+  done
+}
+
+print_setup_handoff() {
+  GX_IP=$(detect_gx_ip)
+  WEB_UI_URL="https://${GX_IP:-<gx-ip>}:$WEB_PORT/"
+  echo "[phaeton] Open Phaeton: $WEB_UI_URL"
+  if [ ! -f "$INSTALL_DIR/setup-claim.json" ]; then
+    echo "[phaeton] Sign in with your existing local Phaeton account."
+    return 0
+  fi
+  # Never include the private claim in redirected output or installation logs.
+  if [ ! -t 1 ]; then
+    echo "[phaeton] In your private GX terminal, run: cat $INSTALL_DIR/setup-claim.json"
+    echo "[phaeton] Use token as the Setup code and certificate_sha256 to verify the browser certificate."
+    return 0
+  fi
+  claim=$(sed -n 's/.*"token"[[:space:]]*:[[:space:]]*"\([A-Za-z0-9_-]\{43\}\)".*/\1/p' "$INSTALL_DIR/setup-claim.json")
+  fingerprint=$(sed -n 's/.*"certificate_sha256"[[:space:]]*:[[:space:]]*"\([A-Fa-f0-9:]*\)".*/\1/p' "$INSTALL_DIR/setup-claim.json")
+  if [ -z "$claim" ] || [ -z "$fingerprint" ]; then
+    echo "[phaeton] Setup details are not ready. Read $INSTALL_DIR/setup-claim.json in this terminal before opening the wizard." >&2
+    return 1
+  fi
+  printf '\nSetup code (private, one-time): %s\nCertificate SHA-256: %s\n\n' "$claim" "$fingerprint"
+  echo "[phaeton] Compare this fingerprint with the browser certificate before continuing."
+  echo "[phaeton] Enter the Setup code in the wizard, then choose your local account. Do not share this code."
+  unset claim fingerprint
 }
 
 # Runtime installation begins here.
@@ -226,10 +316,15 @@ if [ "$ARCH" != "armv7l" ] && [ "$ARCH" != "armv7" ]; then
   exit 1
 fi
 
-if ! command -v openssl >/dev/null 2>&1; then
-  echo "openssl is required to verify signed release checksums." >&2
-  exit 1
+check_install_prerequisites
+
+# A rerun must not replace an executable while its old process keeps running.
+if is_phaeton_running; then
+  echo "[phaeton] Phaeton is already running. Use its Software Updates screen; no files were replaced."
+  print_setup_handoff
+  exit 0
 fi
+check_web_port
 
 mkdir -p "$DATA_ROOT"
 # Serialize installers because all instances share rc.local and the port map.
@@ -246,9 +341,12 @@ mkdir -p "$INSTALL_DIR"
 chmod 0700 "$INSTALL_DIR"
 
 TMP_DIR=$(mktemp -d /tmp/phaeton-install.XXXXXX)
+check_free_space "$TMP_DIR" 65536
+check_free_space "$INSTALL_DIR" 32768
 
 echo "[phaeton] Querying latest public GitHub release"
-RELEASE_JSON=$(curl -fsSL "$GITHUB_API_URL/releases/latest")
+download_file "$GITHUB_API_URL/releases/latest" "$TMP_DIR/release.json"
+RELEASE_JSON=$(cat "$TMP_DIR/release.json")
 ARCHIVE_URL=$(printf '%s\n' "$RELEASE_JSON" | sed -n 's/.*"browser_download_url": "\(https:[^"]*armv7-unknown-linux-gnueabihf\.tar\.gz\)".*/\1/p' | head -n 1)
 SHA_URL=$(printf '%s\n' "$RELEASE_JSON" | sed -n 's/.*"browser_download_url": "\(https:[^"]*SHA256SUMS\)".*/\1/p' | head -n 1)
 SIG_URL=$(printf '%s\n' "$RELEASE_JSON" | sed -n 's/.*"browser_download_url": "\(https:[^"]*SHA256SUMS\.sig\)".*/\1/p' | head -n 1)
@@ -267,10 +365,10 @@ CHECK_PATH="$TMP_DIR/$ARCHIVE_NAME.sha256"
 STAGE_DIR="$TMP_DIR/stage"
 
 echo "[phaeton] Downloading release package $ARCHIVE_NAME"
-curl -fL "$ARCHIVE_URL" -o "$ARCHIVE_PATH"
-curl -fL "$SHA_URL" -o "$SHA_PATH"
-curl -fL "$SIG_URL" -o "$SIG_PATH"
-curl -fL "$PUBLIC_KEY_URL" -o "$PUBKEY_PATH"
+download_file "$ARCHIVE_URL" "$ARCHIVE_PATH"
+download_file "$SHA_URL" "$SHA_PATH"
+download_file "$SIG_URL" "$SIG_PATH"
+download_file "$PUBLIC_KEY_URL" "$PUBKEY_PATH"
 
 echo "[phaeton] Verifying signed checksum manifest"
 openssl dgst -sha256 \
@@ -301,6 +399,12 @@ if [ ! -f "$STAGE_DIR/phaeton" ]; then
   echo "Release package is missing the phaeton binary." >&2
   exit 1
 fi
+staged_kib=$(du -sk "$STAGE_DIR" | awk '{print $1}')
+check_free_space "$INSTALL_DIR" "$((staged_kib + 8192))"
+if is_phaeton_running; then
+  echo "[phaeton] Phaeton started while the installer was downloading. Use Software Updates; no installed files were replaced." >&2
+  exit 1
+fi
 
 # Initialize with the verified new binary before replacing any installed files.
 # Reinstalling a live named instance is refused by its process lock; use that
@@ -327,18 +431,9 @@ write_run_script
 update_rc_local
 start_phaeton
 
-GX_IP=$(detect_gx_ip)
-if [ -n "$GX_IP" ]; then
-  WEB_UI_URL="https://$GX_IP:$WEB_PORT/"
-else
-  WEB_UI_URL="https://<gx-ip>:$WEB_PORT/"
-fi
-
-echo "[phaeton] Installed to $INSTALL_DIR"
-echo "[phaeton] Web UI: $WEB_UI_URL"
-echo "[phaeton] Open this URL in your browser: $WEB_UI_URL"
-echo "[phaeton] First start serves the onboarding wizard at $WEB_UI_URL"
-echo "[phaeton] Free for personal use. Commercial use requires a license from Virtunet BV."
+echo "[phaeton] Phaeton is installed and its web interface is ready."
+print_setup_handoff
+echo "[phaeton] Complete setup and activation in your browser. Installation does not start a charging test."
 echo "[phaeton] Autostart configured in $RC_LOCAL"
 if [ -n "$INSTANCE_NAME" ]; then
   echo "[phaeton] MQTT instance: configure its Alfen charger in the wizard and activate it."

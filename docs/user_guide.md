@@ -57,7 +57,7 @@ You need:
 - the charger Modbus TCP port, usually `502`
 - a Victron GX device on the same network, such as Cerbo GX or Ekrano GX
 - SSH access if installing directly on Venus OS
-- a Phaeton release package for your platform
+- internet access from the GX when using the online installer (no manual package download is needed)
 
 Recommended network layout:
 
@@ -86,63 +86,122 @@ users who need to clone a built-in profile and adjust registers.
 
 ## Install On Victron GX
 
-These steps are intended for Cerbo GX and other GX devices running Venus OS.
-Venus OS keeps writable data under `/data`, so Phaeton installs to
-`/data/phaeton`.
+The canonical [guided GX installation](https://phaeton.virtunet.io/install)
+provides English/Dutch instructions and generates commands using your GX address.
+The following is its Markdown fallback. No GitHub account or manual binary
+download is needed. The script supports ARMv7 Venus OS, including Cerbo GX;
+other GX models and firmware combinations require compatibility checks.
 
-### Enable SSH And Third-Party Startup
+### 1. Check what you need
 
-On the GX device:
+Use a computer on the same local network as the GX. The GX needs internet access
+for the online installer. Remote Console through VRM alone does not provide an
+SSH route from your computer. Check the preparation instructions for your charger.
+The installer reserves at least 64 MiB of free staging space in `/tmp` and
+32 MiB in `/data`, then checks the extracted package size before installation.
 
-1. Open `Settings -> General`.
-2. Raise the access level to `Superuser`.
-3. Set a temporary root password.
-4. Enable `SSH on LAN`.
-5. Open `Settings -> General -> Modification checks`.
-6. Make sure `Modifications enabled` is enabled.
+### 2. Prepare your GX
 
-`/data/rc.local` only runs at startup when modifications are enabled.
+Use the GX display, or sign in to Victron VRM, open your installation and choose
+Remote Console. If you already know the GX IP address, open it in your browser
+on the local network. Find its local IP address under
+**Settings → Ethernet**, or **Settings → Wi-Fi → your connected network**.
 
-### Fast Install
+- **New UI / touchscreen:** open **Settings → General → Access & Security**,
+  set Access level to **User and installer** (access-level password `ZZZ`), then
+  pull the menu list down and hold it for five seconds until **Superuser** appears.
+- **Classic UI:** open **Settings → General**, set **User and installer**
+  (password `ZZZ`), return to General and highlight Access level without opening
+  it. Hold the keyboard's right arrow until **Superuser** appears. Holding the
+  on-screen arrow with the mouse does not work.
 
-From your workstation:
+Set your own temporary root password, enable **SSH on LAN**, then make sure
+**General → Modification checks → Modifications enabled** is on. `ZZZ` is not
+that SSH password. If the access-level password was changed, ask your installer.
+Firmware updates reset the temporary root password. Menu
+labels vary; use the [Victron root-access guide](https://www.victronenergy.com/live/ccgx:root_access)
+if your screen differs. Current Venus versions do not require Remote Support
+for local SSH.
 
-```sh
-ssh root@<gx-ip> 'curl -fsSL https://raw.githubusercontent.com/virtunetbv/phaeton/main/scripts/install-gx.sh | sh'
-```
+### 3. Connect from your computer
 
-Or, from a GX shell:
-
-```sh
-curl -fsSL https://raw.githubusercontent.com/virtunetbv/phaeton/main/scripts/install-gx.sh | sh
-```
-
-For multiple physical chargers on the same GX, use
-[named MQTT instances](multiple-chargers.md), with a dedicated web port and
-activation for each charger.
-
-The installer:
-
-- downloads the latest stable public GitHub release
-- verifies the signed `SHA256SUMS` manifest and selected release package
-- installs Phaeton into `/data/phaeton`
-- writes `/data/phaeton/run.sh`
-- adds a managed Phaeton block to `/data/rc.local`
-- starts Phaeton in the background
-- prints the web UI link for the detected GX IP address when available
-
-After installation, open the web UI link printed by the installer. If Phaeton is
-not already running, start it manually:
+Open **PowerShell / Terminal** from the Windows Start menu, **Terminal** using
+Spotlight on macOS, or your terminal application on Linux. Replace `<gx-ip>` with
+the address you found and run this on your computer:
 
 ```sh
-/data/phaeton/run.sh
+ssh root@<gx-ip>
 ```
 
-Then open:
+SSH may ask you to confirm its host key on first connection. Verify you are
+connecting to your GX; investigate an unexpected changed-key warning. Enter the
+temporary root password. Password characters are invisible while typing.
+When the prompt starts with `root@`, you are connected. Keep this terminal open.
 
-```text
-https://<gx-ip>:8088/
+If the connection is refused, check SSH on LAN. For a timeout, check the address,
+local network and any guest Wi-Fi/VPN isolation. For permission denied, check
+the temporary root password. If Windows cannot find `ssh`, enable its
+**OpenSSH Client** optional feature and reopen PowerShell.
+
+### 4. Install Phaeton in the GX terminal
+
+Paste this entire command at the GX `root@` prompt:
+
+```sh
+(installer=$(mktemp) && trap 'rm -f "$installer"' EXIT && curl -fL --connect-timeout 15 --max-time 120 https://phaeton.virtunet.io/install/gx.sh -o "$installer" && sh "$installer")
 ```
+
+The first-party URL redirects to the curated public installer. If the Phaeton
+website is unavailable, use the same command with
+`https://raw.githubusercontent.com/virtunetbv/phaeton/main/scripts/install-gx.sh`
+as the download URL. The script is downloaded completely before execution.
+
+The installer checks the device and tools, downloads and verifies the signed
+stable release, installs to `/data/phaeton`, writes `run.sh`, preserves other
+commands while adding its managed block to `/data/rc.local`, and waits for the
+web interface. No charging test is started. If a disabled startup file exists,
+restore it only after enabling modifications; if both startup files exist, ask
+an administrator to merge their commands instead of overwriting either one.
+
+For multiple chargers, use [named MQTT instances](multiple-chargers.md); those
+have their own web ports, data directories and activations.
+
+### 5. Open Phaeton
+
+Use the HTTPS address printed by the installer, normally
+`https://<gx-ip>:8088/`. The interactive terminal also shows a **Setup code** and
+**Certificate SHA-256** fingerprint. Before accepting a browser certificate
+warning, open the certificate details and compare the SHA-256 fingerprint. Enter
+credentials only if they match. Older versions label the wizard field **Setup claim**. The one-time Setup code authorizes creation of
+the local administrator; do not share it or include it in support logs.
+
+If output was redirected or you need the code again, run this in your private
+GX terminal:
+
+```sh
+cat /data/phaeton/setup-claim.json
+```
+
+Use `token` as the Setup code and `certificate_sha256` for the comparison. The
+file is removed after successful setup. If setup is already complete, use your
+existing local account. For a named instance, use its own data directory.
+
+### 6. Finish setup and activation
+
+Follow [First-Run Onboarding](#first-run-onboarding), then complete activation
+from the local Phaeton interface. The local account is separate from both the GX
+root password and your portal account. Verify the charger and GX connection and
+follow any restart prompt before relying on charging control.
+
+Future updates use **Software Updates** in Phaeton. A running installation is
+left intact when the installer is rerun. After setup works, SSH on LAN can be
+turned off if no longer needed; keep **Modifications enabled** on for autostart.
+
+If the installer reports a download error, check GX internet access and retry.
+If the web interface is not ready, inspect `/data/phaeton/phaeton.log` and the
+web port before retrying. Start `/data/phaeton/run.sh` only if Phaeton is stopped.
+The installer reporting that files were installed is not proof of charging
+readiness; verify the dashboard and charger configuration separately.
 
 ### Manual GX Install
 
@@ -198,16 +257,10 @@ Start manually:
 /data/phaeton/run.sh
 ```
 
-To start at boot, add Phaeton to `/data/rc.local`:
-
-```sh
-cat >/data/rc.local <<'EOF'
-#!/bin/sh
-/data/phaeton/run.sh &
-exit 0
-EOF
-chmod +x /data/rc.local
-```
+For autostart, prefer the managed installer. If maintaining a manual install,
+back up `/data/rc.local` and edit it to add `/data/phaeton/run.sh &` before its
+existing `exit 0`. Keep all other startup commands and mark the file executable.
+Do not overwrite the entire file. Modifications must be enabled in the GX menu.
 
 ## Install On Other Linux Systems
 
