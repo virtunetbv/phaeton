@@ -1,112 +1,177 @@
 # Phaeton End User License Agreement
 
-Last Updated: 2026-04-05
+Launch version: `perpetual-v1`. Prepared for launch review: 7 September 2026.
+Publication and sales remain subject to the [launch qualification record](docs/perpetual-launch.md).
 
-This End User License Agreement ("Agreement") is a legal agreement between you and Virtunet BV ("Virtunet", "we", "us", or "our") governing your installation and use of the Phaeton software, including any updates, documentation, and related materials (collectively, the "Software").
+This agreement governs installation and use of Phaeton software, documentation
+and supplied updates (the Software) from Virtunet BV (Virtunet). Read it together
+with the license and purchase terms presented in the licensing portal and, where
+applicable, the [commercial terms](COMMERCIAL-LICENSING.md) and
+[installer partner terms](PARTNER-TERMS.md). The terms accepted for the original
+purchase or grant remain recorded; this revision does not revoke or shorten an
+existing issued free or paid perpetual license. Mandatory legal rights prevail.
 
-By installing, copying, downloading, accessing, or using the Software, you agree to this Agreement. If you do not agree, do not install or use the Software.
+## 1. Software ownership and license grant
 
-## 1. Ownership
+The Software is licensed, not sold. Its intellectual property remains with
+Virtunet and its licensors. The named customer receives a non-exclusive perpetual
+right to use the Software for one physical charger through one Phaeton instance,
+subject to the applicable home or commercial entitlement. Each additional charger
+requires its own entitlement and isolated instance, even on the same GX device.
 
-The Software is licensed, not sold. The Software and all intellectual property rights in and to the Software are and remain the exclusive property of Virtunet BV and its licensors.
+A home license permits private, non-commercial household use. A commercial
+license permits the implemented product to be used by a business or organization.
+It does not add features or grant general redistribution, OEM or sublicensing
+rights. Approved installers may expressly commission home licenses for private
+households with customer authority under the partner terms. The installer's paid
+commissioning work does not change the household's license tier.
 
-## 2. Personal Use License
+## 2. Free demo and the home transition
 
-Subject to this Agreement, Virtunet grants you a limited, non-exclusive, non-transferable, non-sublicensable, revocable license to install and use the Software solely for Personal Use. One home entitlement per verified account is free of charge; additional home entitlements may be purchased at the one-time price agreed in Stripe Checkout, with one active installation per entitlement.
+The zero-power demo permits free simulated operation only. It grants no physical
+charging rights, creates no runtime entitlement and spends no installer credit.
+Physical deployments require a valid license.
 
-"Personal Use" means private, individual, non-commercial use by a natural person for personal purposes only, and not:
+Existing issued free entitlements remain permanent. Until the paid-first policy
+is published, the existing one-free-license policy continues. At publication,
+eligible existing verified home accounts without their free entitlement are
+recorded once and have 30 days to claim it. The portal displays individual
+eligibility and the deadline. Accounts outside the snapshot must purchase a first
+license after publication. The publication time is recorded by the portal; this
+document's preparation date is not that time.
 
-- on behalf of or for the benefit of any company, organization, public body, institution, or other entity;
-- in connection with any business, trade, profession, occupation, or revenue-generating activity;
-- for providing services to third parties;
-- for internal business operations;
-- for resale, hosting, bundling, OEM distribution, or managed services.
+Additional-home pricing requires a valid first or free entitlement belonging to
+the same declared household. Demo, commercial, refunded and additional-only
+entitlements do not qualify. Refunding a first license preserves already purchased
+additional licenses, but another qualifying first license is needed before a
+further discounted purchase. An eligible free claim is offered before a paid first
+license purchase.
 
-## 3. Commercial Use Requires a Separate License
+## 3. Customer ownership, installer access and replacement
 
-Any use other than Personal Use is "Commercial Use".
+Entitlements belong to the named household or commercial customer. Installer
+management is separate, limited and revocable. Before customer claim an approved
+installer may activate online or sign an offline request for the specific licenses
+it commissioned through that handoff. A seven-day claim-link expiry does not expire
+the license. Verified customers can recover pending handoffs through the portal or
+support without the original installer and decide whether installer access remains.
 
-Commercial Use includes, without limitation:
+Changing installers does not consume a credit, alter the device binding or require
+reactivation. Actual ownership transfers and correction of a nominated customer
+after activation require an audited support process. Existing partner-owned
+commercial entitlements remain valid legacy records until an authorized conversion;
+no customer is invented and no second charge is required for conversion.
 
-- use by or for a business, sole proprietorship, partnership, foundation, vereniging, nonprofit, government body, school, or other organization;
-- use in professional, operational, or production environments;
-- use in customer projects, consulting, integration, fleet, energy, charging, or facility operations;
-- use connected to paid services, subscriptions, support, maintenance, resale, distribution, or bundled hardware/software offerings.
+Device replacement is a separate operation that preserves the entitlement and its
+history. Home self-service replacement is limited to one transfer per rolling
+12 months and requires the existing installation to be safely releasable under
+portal reachability checks. Failed or unreachable devices require support review.
+Stop using the old installation after replacement. Ownership and installer changes
+do not reset transfer counters.
 
-Commercial Use is not permitted under this Agreement unless you have obtained a valid separate commercial license from Virtunet BV or an authorized distributor acting within written authorization from Virtunet BV.
+## 4. Local license operation
 
-## 4. Restrictions
+The signed license is bound to the installation ID and hashed device fingerprint
+and is verified locally. One entitlement permits one active installation. A valid
+perpetual installation keeps working through portal and heartbeat outages. Online
+activation uses periodic licensing heartbeats for visibility and abuse detection;
+offline activation does not require them.
 
-You may not, except where mandatory law expressly permits:
+An issued offline license cannot be remotely retracted. A refund or contractual
+termination ends the affected usage rights and can prevent future portal issuance
+or replacement, but does not introduce a heartbeat kill switch. Stop using a
+canceled license and delete its license file.
 
-- copy, modify, adapt, translate, or create derivative works of the Software;
-- reverse engineer, decompile, disassemble, or attempt to discover the source code, except to the limited extent such restriction is prohibited by applicable law;
-- rent, lease, lend, sublicense, assign, distribute, sell, resell, or otherwise make the Software available to third parties;
-- remove or alter proprietary notices, trademarks, or license notices;
-- circumvent technical protection or license enforcement mechanisms;
-- use the Software in violation of law, regulation, or third-party rights.
+## 5. Updates and assistance
 
-## 5. Distributors and Third Parties
+Current update access is included without update expiry. No subscription, annual
+partner fee or lifetime feature-upgrade commitment is introduced. Virtunet may
+choose which discretionary features or major upgrades to develop or offer.
+This does not limit obligations to inform consumers about and supply updates,
+including security updates, necessary for conformity under applicable law.
 
-A distributor, reseller, installer, OEM, or integrator may not grant you Commercial Use rights unless that party is separately authorized in writing by Virtunet BV to do so.
+Licensing and payment assistance is included. Setup support, maintenance services,
+an SLA or guaranteed response/resolution times are not included. Mandatory
+conformity, security and other consumer remedies remain unaffected.
 
-Receipt of the Software from a distributor does not by itself grant any Commercial Use rights.
+## 6. Purchases, refunds and withdrawal
 
-## 6. Updates and Support
+The selected offer and final amount are shown before payment, in EUR. Direct home
+prices include applicable VAT; business and installer prices exclude VAT, which is
+added where applicable. Business reverse charge requires verified eligibility.
+Payment fulfillment delivers the entitlement or credits in the portal; a success
+redirect alone does not grant them.
 
-Virtunet may provide updates, patches, fixes, or new versions at its discretion. Unless stated otherwise, updates are governed by this Agreement.
+Direct home customers may request a software-license refund within 30 days of
+fulfillment through the purchase's online withdrawal/refund action or by contacting
+Virtunet with the purchase reference. Review and confirm the request to receive a
+durable acknowledgment. Request acknowledgment and payment settlement are distinct;
+the portal reports pending, successful and failed processing separately. Refunds
+return through the original payment process.
 
-Virtunet is not obligated to provide support, maintenance, or updates under this Agreement.
+This offer supplements statutory withdrawal, conformity and other rights, including
+remedies that apply after 30 days. Purchase, activation and use do not require or
+imply a withdrawal-rights waiver. Deactivating a device alone does not request a
+refund. There is no subscription to cancel.
 
-## 7. Third-Party Software
+Customers purchasing from installers request refunds from their installer as
+seller. The installer must provide the advertised 30-day software-license refund
+offer from customer delivery, in addition to statutory remedies. The partner terms
+set out recorded customer returns and corresponding credit restoration. Business
+purchases do not have an automatic consumer-style refund offer.
 
-The Software may include or be distributed with third-party components subject to separate license terms. Those terms are provided in the third-party notices accompanying the Software. Nothing in this Agreement limits your rights under any applicable third-party open-source licenses for those components.
+## 7. Restrictions and third-party components
 
-## 8. Disclaimer of Warranties
+Except as mandatory law permits or written installer authorization provides, do not:
 
-TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE SOFTWARE IS PROVIDED "AS IS" AND "AS AVAILABLE", WITH ALL FAULTS AND WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, WHETHER EXPRESS, IMPLIED, OR STATUTORY.
+- Copy or distribute the Software or license rights to other installations, sell,
+  sublicense, rent or bundle them, or grant rights beyond the purchased entitlement.
+- Modify the Software, remove proprietary notices, forge license files or circumvent
+  licensing and device-binding mechanisms.
+- Reverse engineer or decompile the Software beyond what applicable law permits,
+  including mandatory interoperability exceptions.
+- Use a home license for business operations or violate applicable law or third-party rights.
 
-VIRTUNET DISCLAIMS ALL IMPLIED WARRANTIES, INCLUDING ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, NON-INFRINGEMENT, QUIET ENJOYMENT, ACCURACY, AVAILABILITY, SECURITY, RELIABILITY, OR THAT THE SOFTWARE WILL BE ERROR-FREE OR OPERATE WITHOUT INTERRUPTION.
+Third-party components retain their separate license terms in
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Nothing here removes rights granted
+by those licenses. Receiving the Software from a distributor alone does not grant
+commercial use or resale rights.
 
-You are solely responsible for verifying that the Software is suitable for your environment and use case.
+## 8. Conformity and liability
 
-## 9. Limitation of Liability
+Phaeton is supplied for its documented supported use. Compatibility with every
+charger or configuration and uninterrupted, error-free operation are not promised.
+The license does not include site-wide load allocation, fleet billing or a remote
+monitoring service. Verify compatibility and follow supported installation guidance.
 
-TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, VIRTUNET AND ITS AFFILIATES, DIRECTORS, OFFICERS, EMPLOYEES, AGENTS, LICENSORS, AND DISTRIBUTORS SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, EXEMPLARY, OR PUNITIVE DAMAGES, OR FOR ANY LOSS OF DATA, LOSS OF PROFITS, LOSS OF REVENUE, LOSS OF BUSINESS, LOSS OF GOODWILL, SYSTEM FAILURE, DOWNTIME, OR COST OF SUBSTITUTE GOODS OR SERVICES, ARISING OUT OF OR RELATING TO THE SOFTWARE OR THIS AGREEMENT, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+To the extent permitted by applicable law, the Software is otherwise supplied as
+is, and Virtunet excludes liability for indirect or consequential business loss,
+including lost profit, revenue, data or business interruption. For personal use,
+to the extent lawful, aggregate liability is limited to the greater of EUR 50 or
+the amount paid to Virtunet for the affected Software in the 12 months preceding
+the event; an applicable separate commercial agreement governs any commercial cap.
 
-TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, VIRTUNET'S TOTAL AGGREGATE LIABILITY ARISING OUT OF OR RELATING TO THE SOFTWARE OR THIS AGREEMENT SHALL NOT EXCEED:
+These qualifications, exclusions and limits do not remove mandatory conformity,
+security-update, withdrawal or other consumer remedies, or liability that cannot
+lawfully be excluded or limited. No clause requires a consumer to waive such rights.
+The Software is not certified for safety-critical or life-support use.
 
-- for Personal Use, the greater of EUR 50 or the amount you paid to Virtunet for the Software in the 12 months preceding the event giving rise to the claim; and
-- for Commercial Use, the amount expressly stated in the applicable commercial license agreement.
+## 9. Termination and later terms
 
-Nothing in this Agreement excludes or limits liability to the extent such liability cannot be excluded or limited under applicable law.
+Perpetual rights do not end because an installer changes, a handoff is delayed,
+a heartbeat fails or later terms are declined. A material breach may result in
+termination subject to applicable law, notice and an opportunity to remedy where
+required. On lawful termination, stop the affected use and delete its license files.
+A later publication does not retrospectively replace the terms recorded for an
+existing purchase or shorten an issued perpetual grant.
 
-## 10. High-Risk Use
+## 10. Law and contact
 
-The Software is not designed, certified, or intended for use in hazardous, safety-critical, life-support, medical, emergency-response, or other high-risk environments where failure could lead to death, personal injury, environmental damage, or significant property damage.
+Dutch law applies without depriving consumers of mandatory protections in their
+country of habitual residence. Consumers retain applicable rights concerning the
+competent court. Other disputes go to the competent Dutch court.
 
-You assume all risk for any such use.
-
-## 11. Termination
-
-This Agreement terminates automatically if you breach it. Upon termination, you must stop using the Software and delete all copies in your possession or control.
-
-Virtunet may also terminate or suspend your rights under this Agreement if required to protect its rights, users, systems, or legal interests.
-
-## 12. Governing Law
-
-This Agreement is governed by the laws of the Netherlands, excluding its conflict-of-law rules.
-
-If you are a consumer, any mandatory rights and protections available to you under applicable law remain unaffected.
-
-## 13. Contact and Commercial Licensing
-
-For commercial licensing, OEM/distributor licensing, or other permissions, contact:
-
-Virtunet BV
-info@virtunet.io
-https://virtunet.io
-
-## 14. Entire Agreement
-
-This Agreement is the entire agreement between you and Virtunet regarding the Software under this license and supersedes prior or contemporaneous understandings relating to the same subject matter.
+Virtunet B.V., Dullofsakker 44, 5688VD Oirschot, The Netherlands.
+KvK: 95773444. Email: [info@virtunet.nl](mailto:info@virtunet.nl).
+Privacy information is available in the licensing portal. Accepting these terms
+is not consent to advertising or unrelated personal-data processing.

@@ -119,8 +119,11 @@ Create a separate dummy instance using the same signed release:
 sh /tmp/install-phaeton.sh --instance demo --web-port 8091 --demo
 ```
 
-Complete its normal setup and activation; demo instances use the same licensing
-gates as physical instances. No Alfen IP is needed. The immutable demo setting
+Complete its normal setup. From version 0.52.0 the zero-power demo is free and
+does not require activation or consume a home license or installer credit.
+The license indicator shows **Demo · zero power**; no licensing heartbeat is sent.
+Physical instances still require their own valid signed licenses. No Alfen IP
+is needed for the demo. The immutable demo setting
 selects an in-memory adapter and a fixed single-phase profile. Charger diagnostics
 that could contact physical hardware are blocked. Configuration imports cannot
 turn it into a physical adapter. The web UI and GX identify it as
@@ -147,6 +150,8 @@ With one Alfen plus a dummy, verify discovery, separate controls, lease loss,
 restart isolation and zero GX/VRM energy from the dummy. A dummy may receive an
 allocation from GX, so use conservative real-charger limits during this test.
 This does not qualify simultaneous physical charging or the site's shared limits.
+Free demo operation also does not prove physical runtime license enforcement;
+qualify signed activation and unlicensed physical startup separately.
 
 ## Qualification before shared Auto charging
 
