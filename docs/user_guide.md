@@ -355,45 +355,25 @@ Use the charger connection test before saving. If it fails:
 - confirm the charger and Phaeton are on the same network
 - check firewall rules between Phaeton and the charger
 
-For the built-in Alfen profile, also use `Test Alfen Control`. The test reads
+For the Alfen integration, also use `Test Alfen Control`. The test reads
 the charger EMS diagnostics, writes the current setpoint value back to Alfen
 register `1210`, and checks whether the charger reports that the setpoint is
 accounted for.
 
-### Charger Profiles
+### Charger Integrations
 
-Built-in profiles are read-only. To change registers:
+Select Alfen, go-e, Peblar, KEBA or WARP under Charger & installation. Each named
+adapter owns its manufacturer's control behavior. Setup instructions and scope:
+[go-e](go-e.md), [Peblar](peblar.md), [KEBA](keba.md), [WARP](warp.md).
+The new KEBA and WARP adapters support current limits, pause/resume and telemetry;
+phase switching and RFID authorization remain in the charger.
 
-1. Select the built-in profile.
-2. Create a custom profile from it.
-3. Edit the custom profile.
-4. Save the configuration.
-
-A profile defines:
-
-- default charger Modbus port
-- Modbus slave IDs
-- datapoint addresses
-- register counts
-- value types
-- optional scaling
-- raw charger status mapping
-
-Required datapoints include:
-
-- `voltage_l1`, `voltage_l2`, `voltage_l3`
-- `current_l1`, `current_l2`, `current_l3`
-- `power_l1`, `power_l2`, `power_l3`
-- `energy`
-- `status`
-- `amps_config`
-- `phases`
-- `firmware_version`
-- `station_serial`
-- `manufacturer`
-
-Use the per-datapoint test buttons to verify raw and decoded values before
-relying on a custom profile.
+Custom Modbus profiles and arbitrary register tests were removed in v0.57.0.
+Existing standard Alfen configurations migrate automatically. If an old file
+contains custom mappings or a runtime Alfen YAML override, remove it and select a
+supported integration; Phaeton will report the unsupported configuration rather
+than execute or silently translate those mappings. For Alfen, configure the IP,
+TCP port and socket ID (1 or 2); the register map and station ID are fixed.
 
 ### Alfen Notes
 

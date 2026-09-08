@@ -116,8 +116,7 @@ Check:
 
 - `Allow 1- and 3-phased charging` is enabled in the Alfen Active balancing
   menu.
-- The Phaeton charger profile is still `alfen-eve` or a custom profile with the
-  Alfen phase register correctly mapped.
+- The selected Phaeton integration is Alfen and the socket ID is correct (1 or 2).
 - The installation supports both 1-phase and 3-phase charging.
 - Phaeton logs do not contain `Phase switching support probe failed`.
 
