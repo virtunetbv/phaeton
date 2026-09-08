@@ -892,6 +892,12 @@ controls; expand **Electrical details** or **Charging history** for more detail.
 Requested current is your preference; commanded current is what Phaeton sends.
 Older samples without commanded values have gaps in that series.
 
+Auto mode requests zero current while the charger reports no vehicle connected.
+If Stop arrives during a current change, Phaeton records the completed change
+and sends the corrective zero-current request on the next polling cycle.
+Unavailable energy readings retain the last displayed counter; session totals
+and energy attribution resume when fresh readings return.
+
 Use **Schedule** to edit weekly charging windows and inspect the next window.
 These windows control charging when Scheduled mode is selected.
 
