@@ -949,7 +949,9 @@ runtime normally.
 
 ### Need Logs For Support
 
-Open `Logs` in the web UI and select `Download full log`.
+Open `Logs` in the web UI and select `Support bundle` after reproducing the issue,
+before restarting Phaeton or reconnecting the charger. For a reported fix, capture
+a new bundle while the charger is connected so the current status is included.
 
 On Venus OS, the default log is:
 
@@ -957,11 +959,13 @@ On Venus OS, the default log is:
 /data/phaeton/phaeton.log
 ```
 
-For public support requests, prefer `Support bundle`. It includes the current
+The bundle includes the Phaeton version, current
 status snapshot, diagnostics, and log content, but redacts paths, email
 addresses, secrets, and full device identifiers. IP addresses keep only the
 last octet, and serial, install, and license identifiers keep only their last
 four characters so support can still correlate repeated reports.
+
+Use `Download full log` when support specifically needs the original log file.
 
 The Logs view level selector controls what is captured in the log file. DEBUG
 and TRACE are available for temporary diagnostics only; Phaeton automatically

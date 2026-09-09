@@ -37,7 +37,7 @@ In ACE Service Installer, check the Alfen Smart Charging / Load Balancing pages:
 | TCP/IP EMS | Validity time | `300 s` recommended, and always longer than Phaeton's current update interval |
 | Modbus TCP/IP | Allow reading | Enabled |
 | Modbus TCP/IP | Allow writing maximum currents | Enabled |
-| Active balancing | Allow 1- and 3-phased charging | Enabled when Phaeton may switch phases |
+| Active balancing | Allow single-/multiphase charging, also called Allow 1- and 3-phased charging | Enabled when Phaeton must change phases, including from 3 to 1 |
 
 The default Phaeton current update interval is `30000 ms`. Alfen's default
 validity time of `60 s` is enough for the default interval, but `300 s` gives a
@@ -52,7 +52,10 @@ separately. The first socket, or a single-socket charger, uses socket slave ID
 
 Safe current is the charger's fallback when EMS setpoints expire or Phaeton is
 offline. It must be configured before Alfen will reliably accept maximum-current
-writes.
+writes. Phaeton displays the reported value, including `0 A`, without inferring
+that zero means unconfigured. The installer must select and verify the fallback
+for the charger, firmware and installation. The control test does not qualify
+offline fallback behavior.
 
 Only enable `Allow 1- and 3-phased charging` when the physical installation and
 charger configuration support it. If this Alfen checkbox is unavailable or
@@ -74,7 +77,7 @@ important checks are:
 
 - the current setpoint readback matches the value Phaeton wrote
 - the EMS validity timer is active
-- the Active Load Balancing safe current is configured
+- the reported Active Load Balancing safe current is readable and nonnegative
 - Alfen reports that the Modbus setpoint is accounted for
 
 If the connection test succeeds but `Test Alfen Control` says the setpoint is
@@ -82,6 +85,13 @@ not accounted for, Phaeton can reach the charger, but the charger is not using
 Phaeton as the EMS controller. Re-check Active Load Balancing, Data Source =
 Energy Management System, TCP/IP EMS mode, write permission for maximum
 currents, validity time, and safe current.
+
+A successful connection test establishes TCP connectivity only. If the control
+test fails, its error includes the endpoint, socket unit, test stage and register
+range. This distinguishes the initial diagnostic read, current write and readback.
+`Connection reset by peer (os error 104)` is a TCP transport error. Capture a
+Support bundle before restarting so support can investigate the reset alongside
+the test stage. The number alone does not identify a charger configuration fault.
 
 ## Symptom Checklist
 
@@ -93,7 +103,8 @@ Check:
 - Data Source is `Energy Management System`, not `Meter`.
 - TCP/IP EMS mode is `Socket` for this setup.
 - `Allow writing maximum currents` is enabled.
-- Safe current is configured and greater than `0 A`.
+- Safe current matches the fallback selected by the installer. A reported `0 A`
+  alone does not establish whether EMS control works.
 - TCP/IP EMS validity time is longer than Phaeton's current update interval.
 - `Test Alfen Control` reports `setpoint accounted: yes`.
 
@@ -172,7 +183,9 @@ When asking for help, include enough evidence to avoid guessing:
   Source, safe current, and the 1-/3-phase checkbox.
 - A screenshot of Alfen `TCP/IP EMS` showing mode and validity time.
 - A screenshot or copied text from Phaeton `Test Alfen Control`.
-- Phaeton full log from `Logs -> Download full log`; enable temporary `DEBUG`
+- Phaeton `Logs -> Support bundle`, captured after reproducing the issue and
+  before restarting or reconnecting. It includes logs, Phaeton version, the
+  current status snapshot and charger diagnostics. Enable temporary `DEBUG`
   capture from the Logs view while reproducing the issue when possible.
 - Alfen charger logs or event export when available.
 - The exact time of the test and what was expected, for example "Manual 6 A did
@@ -192,6 +205,13 @@ Confirm that Alfen reports **1 phase**. If it already does, Phaeton does not nee
 phase-write permission. If it reports three phases, Phaeton stops current before
 attempting a verified change to one phase. A missing, rejected or mismatched
 readback keeps charging blocked and is explained in the dashboard status.
+
+Changing Alfen from three phases to one also requires **Allow single-/multiphase
+charging** in **Load balancing -> Active balancing** in ACE. Older ACE versions
+call this **Allow 1- and 3-phased charging**. Despite its name, disabling this
+permission can prevent a one-phase request. Have the installer check it for the
+installation, and keep Phaeton's **Single-phase only** enabled throughout.
+
 Do not treat a saved setting as hardware confirmation or enable Alfen phase
 switching beyond what the physical installation supports.
 
@@ -200,12 +220,17 @@ verification** on the Charging page. It is available for a rejected verification
 in Manual, Auto and Scheduled mode when live charger telemetry is fresh. It is
 disabled while a new attempt is running. Keep **Single-phase only** enabled.
 
+The status stays brief. Hover over, focus or tap the question mark beside Retry
+for the full explanation, including the ACE setting after an Alfen rejection.
+Press Escape or tap outside to close it.
+
 Expand **Last verification attempt** to see the time, requested and reported
 phases, command or readback errors, and whether retries were exhausted. These
 details are also written to the full log. The previous result remains visible
 until a new attempt finishes. The on-screen record lasts for the current runtime
 and is cleared when configuration or the charger connection is reset; download
-the full log before restarting for support investigations.
+a Support bundle before restarting for support investigations. To confirm a fix,
+capture a new bundle after the successful retry while the charger is connected.
 
 On older versions, save Phaeton configuration again or reconnect the charger to
 retry. Verify one-phase startup, a Phaeton restart,
