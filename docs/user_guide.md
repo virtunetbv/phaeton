@@ -15,6 +15,7 @@ Victron-compatible EV Charging Station.
 - [Supported Chargers](#supported-chargers)
 - [Install on Victron GX](#install-on-victron-gx)
 - [Install On Other Linux Systems](#install-on-other-linux-systems)
+- [Open Phaeton Through VRM Control Panel](#open-phaeton-through-vrm-control-panel)
 - [First-Run Onboarding](#first-run-onboarding)
 - [Activation And Licensing](#activation-and-licensing)
 - [Configure The Charger](#configure-the-charger)
@@ -122,6 +123,14 @@ computer and open `PHAETON-RESULT.html` to compare its public SHA-256 fingerprin
 with the browser certificate before entering credentials. Stop if they differ.
 The result is also useful for [installation troubleshooting](gx-usb-installation.md#recovery--herstel);
 it contains no setup password or code.
+
+If your GX has separately prepared VRM management access, you can open the
+setup page through [VRM Control Panel](#open-phaeton-through-vrm-control-panel).
+USB installation itself does not enable that remote route.
+
+If the guide reports that the USB download is unavailable, return later or use
+the advanced SSH instructions below. Older public releases may not contain a
+USB installer; their normal `.tar.gz` archives cannot be used as USB installers.
 
 An offline GX can exchange activation request and license files using a computer
 with internet. Check the dashboard and connections before starting a charging test.
@@ -341,18 +350,78 @@ usually `~/.local/share/phaeton`. You can override it:
 PHAETON_DATA_DIR=/path/to/phaeton-data phaeton
 ```
 
+## Open Phaeton Through VRM Control Panel
+
+Phaeton 0.59.0 adds automatic Control Panel management for fresh GX USB/SSH
+installations and existing named MQTT instances. Open **VRM → Device list →
+Phaeton EV Charging Station → Control Panel** to reach setup or sign-in remotely.
+Existing default Modbus installations keep their current registration and are
+not automatically migrated. Releases through 0.58.4 require the separately
+prepared trial route.
+
+### Configure the GX for Control Panel
+
+Use the GX display or Remote Console. The newer UI uses **Settings → VRM**;
+older menus call it **Settings → VRM online portal**.
+
+| Where | What to configure or check |
+| --- | --- |
+| **Settings → Connectivity → Ethernet / Wi-Fi** (older UI: **Settings → Ethernet / Wi-Fi**) | Connect the GX to the internet. USB installation can be offline; remote access needs internet. |
+| **Settings → VRM → VRM Portal** | Select **Full** if the owner wants remote configuration. |
+| **Settings → VRM → Last contact** | Confirm recent successful contact and that the GX belongs to the intended VRM installation. |
+| **Settings → General → Modification checks → Modifications enabled** | Keep enabled for Phaeton startup after reboot. |
+| VRM installation permissions | The account opening Control Panel must be allowed to change settings. |
+
+Phaeton uses the GX's local MQTT services. Enabling **MQTT Access** on the LAN or
+pairing a network device does not create its web route. Keep the existing local
+network security profile. Control Panel does not require router port forwarding,
+Remote Support or SSH on LAN. Phaeton manages its own nginx include and proxy;
+GX retains ownership of the remote tunnel and access settings.
+
+### Open the installation
+
+1. Complete the GX settings above and allow the device list to refresh after
+   Phaeton starts. The initial registration waits 17 seconds.
+2. Select the intended Phaeton EV Charging Station and **Control Panel** in VRM.
+   During setup its name is **Phaeton - setup / activation**; the same identity
+   becomes **Phaeton EVCS** after authorized restart. **Remote Console** opens GX.
+3. Create your administrator account or sign in to Phaeton. No setup code is
+   required. VRM access does not replace the Phaeton login or licensing account.
+4. Follow setup, activation and restart prompts. Remote visibility does not
+   authorize charging: the process remains inhibited until an authorized restart.
+
+The supervised Cerbo GX trial on Venus `v3.80~39` established remote setup,
+login/logout and activation-page access. The new automatic lifecycle, completed
+activation, licensed dashboard and updates still require GX/VRM qualification.
+Use local HTTPS for commissioning while that verification remains outstanding.
+
+### If Control Panel is missing or opens the wrong page
+
+Check the deployment/version, GX connectivity, VRM Full mode and account
+permissions. On 0.59.0, inspect `--control-panel status` and the Phaeton logs;
+allow a 30-second reconciliation interval after GX regenerates its routes.
+Continue locally at `https://GX-IP:8088/`, or the named instance's assigned port.
+The USB result's certificate fingerprint belongs to this local HTTPS service;
+the VRM relay presents its own certificate.
+
+See [GX Control Panel setup, disable/removal and troubleshooting](gx-control-panel.md)
+for supported layouts, commands and ownership details, and Victron's
+[VRM connectivity instructions](https://www.victronenergy.com/media/pg/Cerbo_GX/en/vrm-portal.html).
+
 ## First-Run Onboarding
 
 On a fresh install, Phaeton enters the first-run setup wizard. While the wizard
 is pending, the bridge runtime is intentionally not started.
 
-Open `https://<host>:8088/` and choose the administrator username and password.
+Open `https://<host>:8088/`, or use the
+[VRM Control Panel route](#open-phaeton-through-vrm-control-panel),
+and choose the administrator username and password.
 No setup code, local file retrieval or SSH access is required. Complete initial
 setup on a trusted network: the first person to finish it creates the account.
 The generated certificate and private key remain under the data directory so
 the device identity is stable across restarts. Its public SHA-256 fingerprint
 is available in the USB installation result or local logs for comparison with
-the browser certificate.
+the browser certificate when connecting locally.
 
 The wizard asks for:
 
@@ -753,6 +822,10 @@ manifest yet. Use the latest public release branch after the next sync, or ask
 support for the current guide.
 
 ### Cannot Reach The Web UI
+
+For a missing or failing VRM Control Panel, follow the
+[VRM access checks](#if-control-panel-is-missing-or-opens-the-wrong-page).
+The checks below are for direct local access.
 
 Check:
 

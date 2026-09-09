@@ -421,6 +421,9 @@ if [ -n "$INSTANCE_NAME" ]; then
   else
     PHAETON_DATA_DIR="$INSTALL_DIR" "$STAGE_DIR/phaeton" --init-instance "$INSTANCE_NAME" "$WEB_PORT"
   fi
+elif [ -z "$(ls -A "$INSTALL_DIR")" ]; then
+  chmod 0755 "$STAGE_DIR/phaeton"
+  PHAETON_DATA_DIR="$INSTALL_DIR" "$STAGE_DIR/phaeton" --init-instance default 8088
 fi
 
 rm -rf "$INSTALL_DIR/webui"

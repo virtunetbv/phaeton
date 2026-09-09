@@ -33,6 +33,18 @@ If the website is unavailable, use the
 For future updates, use **Software Updates** in Phaeton. The USB installer
 preserves existing installations and does not update them.
 
+### Open through VRM Control Panel
+
+Phaeton 0.59.0 adds managed remote access for fresh GX installs and existing
+named MQTT instances. Open **VRM → Device list → Phaeton EV Charging Station →
+Control Panel** and use your Phaeton administrator credentials. GX needs internet,
+VRM **Full** mode and an account allowed to change settings.
+
+Existing default Modbus installations keep their registration. Releases through
+0.58.4 do not install this route automatically. See the
+[GX settings, availability and troubleshooting](docs/gx-control-panel.md), including
+remaining GX/VRM qualification. Local access remains at `https://GX-IP:8088/`.
+
 ### Advanced installation with SSH
 
 Use the **SSH installation** section in the guided installation if you cannot use a
@@ -107,7 +119,15 @@ Recommended support reproduction:
 
 ## Releases
 
-Current release artifacts:
+Choose the file for your task:
+
+| Task | File | How to use it |
+| --- | --- | --- |
+| New GX installation | `venus-data-phaeton-<version>-armv7.tgz` | Download from the guided installation and copy unopened to the USB stick. Older releases may not include this file. |
+| Update an installed Phaeton | `phaeton-<version>-<target>.phaeton-update` | Upload in **Software Updates**, including when the GX is offline. |
+| Manual Linux installation | `phaeton-<version>-<target>.tar.gz` | Verify and extract the archive for your platform. |
+
+Manual installation archives and verification files:
 
 - `phaeton-<tag>-arm-unknown-linux-gnueabihf.tar.gz`
 - `phaeton-<tag>-armv7-unknown-linux-gnueabihf.tar.gz`

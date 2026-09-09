@@ -78,12 +78,23 @@ Find the GX IP address under **Settings → Ethernet** or **Settings → Wi-Fi �
 your connected network**. On the same trusted local network, open
 `https://GX-IP:8088/`, replacing `GX-IP` with that address.
 
+With the 0.59.0 installer, a fresh installation creates a persistent MQTT instance
+and manages its Control Panel route automatically on supported GX systems. Open
+**VRM → your installation → Device list → Phaeton EV Charging Station → Control
+Panel**. Configure GX internet, VRM **Full** mode and account settings permission;
+see the [GX settings and availability](gx-control-panel.md). Releases through
+0.58.4 do not prepare this route automatically. The new automatic lifecycle and
+completed remote activation/updates still require GX qualification. Use the
+local address above for commissioning or whenever Control Panel is unavailable.
+
 If your browser shows a privacy warning, Phaeton uses its own certificate.
 After safely returning the stick to your computer, open **PHAETON-RESULT.html**
 and compare its public **SHA-256 certificate fingerprint** with the browser's
 certificate details before entering credentials. Stop if they differ. The result
 is an offline status report with no setup credential. If it is missing, still
 says **Installation in progress**, or reports failure, see [Recovery](#recovery--herstel).
+This fingerprint check applies to local HTTPS; the VRM relay presents its own
+HTTPS certificate.
 
 Choose your administrator username and password, then follow the wizard to
 configure the charger and GX connection. **No setup code is required.** Activate
@@ -168,6 +179,26 @@ Zoek het GX-IP-adres bij **Instellingen → Ethernet** of **Instellingen → Wi-
 je verbonden netwerk**. Open op hetzelfde vertrouwde lokale netwerk
 `https://GX-IP:8088/` en vervang `GX-IP` door dat adres.
 
+De installer van 0.59.0 maakt bij een nieuwe installatie een vaste MQTT-instantie
+aan en beheert de Control Panel-route automatisch op ondersteunde GX-systemen.
+Open **VRM → je installatie → Device list → Phaeton EV Charging Station → Control
+Panel**. Hiervoor zijn GX-internet, VRM **Full** en wijzigingsrechten nodig.
+Versies tot en met 0.58.4 bereiden deze route niet automatisch voor. De nieuwe
+automatische werking, voltooide activering en updates op afstand moeten nog op
+GX worden geverifieerd. Gebruik voor het in bedrijf stellen het lokale adres
+hierboven, ook als Control Panel ontbreekt. Je VRM-account, lokale Phaeton-login
+en Phaeton-portalaccount staan los van elkaar. Zie de
+[GX-instellingen en beschikbaarheid](gx-control-panel.md).
+
+Voor VRM-toegang: verbind de GX met internet en open **Instellingen → VRM →
+VRM Portal** (oudere interface: **VRM online portal**). Kies **Full** als de
+eigenaar configuratie op afstand wil toestaan. Controleer in hetzelfde menu
+**Last contact** en eventuele verbindingsfouten. Je VRM-account moet instellingen
+mogen wijzigen. Laat **Modifications enabled** aanstaan voor Phaeton. De lokale
+MQTT-services moeten draaien; Phaeton 0.59.0 beheert op ondersteunde installaties
+zijn eigen route. Voor gebruik van Control Panel zijn geen SSH op LAN, Remote Support of
+poortdoorschakelingen nodig. Behoud het bestaande lokale beveiligingsprofiel.
+
 Je browser kan een privacywaarschuwing tonen omdat Phaeton een eigen certificaat
 gebruikt. Open na veilige verwijdering van de stick **PHAETON-RESULT.html** op je
 computer. Vergelijk de openbare **SHA-256-certificaatvingerafdruk** met de
@@ -175,6 +206,8 @@ certificaatdetails in je browser voordat je inloggegevens invoert. Stop als ze
 verschillen. Het resultaat is een offline statusrapport zonder setupgeheim.
 Ontbreekt het, staat er nog **Installatie bezig** of wordt er een fout gemeld,
 bekijk dan [Herstel](#recovery--herstel).
+Deze vergelijking geldt voor lokale HTTPS; de VRM-relay toont een eigen
+HTTPS-certificaat.
 
 Kies je lokale beheerdersnaam en wachtwoord en volg de wizard voor de laadpaal-
 en GX-verbinding. **Er is geen setupcode nodig.** Activeer vanuit Phaeton met je
@@ -287,6 +320,39 @@ For the repository's deployment helper, supply the corresponding optional
 `PHAETON_PORTAL_STAGING_GX_USB_INSTALLER_VERSION` or
 `PHAETON_PORTAL_PRODUCTION_GX_USB_INSTALLER_VERSION` variable. It is copied to
 the Worker's `GX_USB_INSTALLER_VERSION` binding. No value is committed by default.
+
+### Download availability check, 2026-09-09
+
+The initial check found public release `v0.52.1` without a USB asset. A follow-up
+after publication of [v0.58.4](https://github.com/virtunetbv/phaeton/releases/tag/v0.58.4)
+at 09:25:49 UTC confirmed that its
+[USB archive](https://github.com/virtunetbv/phaeton/releases/download/v0.58.4/venus-data-phaeton-0.58.4-armv7.tgz)
+is publicly downloadable with the correct filename. The
+[live installation page](https://phaeton.virtunet.io/install) still offers no
+download link and its download endpoint still returns 404. A new USB package
+is no longer needed to enable that version; the portal version pin remains.
+
+There are three immediate distribution options:
+
+| Option | Action | Operational effect |
+| --- | --- | --- |
+| **Normal portal deployment (recommended)** | Set `PHAETON_PORTAL_PRODUCTION_GX_USB_INSTALLER_VERSION=0.58.4` in the deployment environment, then run `portal_deploy_production` from reviewed main. Use the corresponding staging variable and job to check it first. | Enables the site's button and stable download URL through the existing deployment process. |
+| **Cloudflare variable change** | On the production Worker, set the text binding `GX_USB_INSTALLER_VERSION` to `0.58.4` and deploy the configuration change. Also persist the same value in the deployment environment. | Enables the existing route without application source changes. A later scripted deployment rebuilds the bindings, so a dashboard-only value can disappear. |
+| **Direct release download** | Download the official v0.58.4 USB archive linked above. | Usable immediately; does not enable the Phaeton site's button. Follow the same USB preparation instructions. |
+
+The version value has no `v` prefix. The deployment helper also accepts
+`PORTAL_GX_USB_INSTALLER_VERSION`, which takes precedence over the environment-
+specific variable; remove a conflicting override or set it to the same version.
+The Worker accepts only plain `X.Y.Z` versions at least 0.58.0 and fetches a
+fixed GitHub release path. Private CI trial artifacts and trial-tag suffixes
+cannot be selected by this binding. It deliberately does not follow `latest`.
+
+After enabling the pin, check both guide languages, perform a full download,
+confirm HTTP 200 and the expected filename, and compare the downloaded archive
+with the release asset. The curated public GitHub sync must also carry the
+current guides. To withdraw the site download, remove the binding and redeploy;
+the existing guide will show it as unavailable. Changing this documentation
+does not deploy any of these options.
 
 ### General-use release decision, 2026-09-09
 
