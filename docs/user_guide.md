@@ -13,7 +13,7 @@ Victron-compatible EV Charging Station.
 - [What Phaeton Does](#what-phaeton-does)
 - [Before You Start](#before-you-start)
 - [Supported Chargers](#supported-chargers)
-- [Install On Victron GX](#install-on-victron-gx)
+- [Install on Victron GX](#install-on-victron-gx)
 - [Install On Other Linux Systems](#install-on-other-linux-systems)
 - [First-Run Onboarding](#first-run-onboarding)
 - [Activation And Licensing](#activation-and-licensing)
@@ -56,8 +56,9 @@ You need:
 - the charger IP address or hostname
 - the charger Modbus TCP port, usually `502`
 - a Victron GX device on the same network, such as Cerbo GX or Ekrano GX
-- SSH access if installing directly on Venus OS
-- internet access from the GX when using the online installer (no manual package download is needed)
+- physical access to the GX and an empty USB stick for the recommended USB installation
+- a computer with internet to download the USB installer, on the same local network as the GX for setup
+- SSH access and GX internet access only if choosing the advanced SSH installation
 
 Recommended network layout:
 
@@ -84,19 +85,59 @@ Additional chargers can be supported by adding charger definitions or custom
 charger profiles. The web UI includes a charger profile editor for advanced
 users who need to clone a built-in profile and adjust registers.
 
-## Install On Victron GX
+## Install on Victron GX
 
-The canonical [guided GX installation](https://phaeton.virtunet.io/install)
-provides English/Dutch instructions and generates commands using your GX address.
-The following is its Markdown fallback. No GitHub account or manual binary
-download is needed. The script supports ARMv7 Venus OS, including Cerbo GX;
-other GX models and firmware combinations require compatibility checks.
+The [guided GX installation](https://phaeton.virtunet.io/install) is available in
+English and Dutch. **USB installation is recommended**: no SSH, terminal commands
+or setup code are needed. The USB installer is for 32-bit ARMv7 Venus OS,
+including Cerbo GX. The GX does not need internet during installation.
 
-An [experimental USB installer and EN/NL trial guide](gx-usb-installation.md)
-are available for qualification work. No GX/firmware combination is USB-qualified
-yet; the SSH instructions below remain the supported installation route.
+### Install from a USB stick
 
-### 1. Check what you need
+1. **Download.** Open the guided installation and select **Download GX USB
+   installer**. Keep the file named `venus-data-phaeton-VERSION-armv7.tgz`
+   unopened. Do not extract or rename it, and do not use a `.phaeton-update`
+   bundle for USB installation.
+2. **Copy.** Use a dedicated empty, writable FAT32 stick with an MBR partition
+   table and at least 256 MB free. Formatting erases its contents; save anything
+   you want to keep first. Copy the unopened installer directly onto the drive,
+   outside any folder, then eject it from your computer. Do not use a GX logging
+   stick. The [USB guide](gx-usb-installation.md) includes Windows/macOS/Linux help.
+3. **Restart the GX.** Keep **Settings → General → Modification checks →
+   Modifications enabled** on. Disconnect other removable storage, insert the
+   stick in a USB data port. Do not use a GX Touch power-only port. Restart when
+   it will not interrupt charging or other essential work. Allow five minutes
+   for startup and wait for USB activity to stop. Do not remove busy media or
+   interrupt GX power. If safe removal is uncertain, leave the stick inserted and
+   contact support; browser setup can continue with it present.
+4. **Finish in your browser.** Find the GX IP address in its Ethernet or Wi-Fi
+   settings and open `https://GX-IP:8088/` on the same trusted local network.
+   Choose your administrator username and password, configure the charger and
+   GX connection, then activate from Phaeton. Follow [First-Run Onboarding](#first-run-onboarding).
+   No setup code is required. The portal account used for activation is separate
+   from your local Phaeton login.
+
+If your browser shows a certificate warning, safely return the stick to your
+computer and open `PHAETON-RESULT.html` to compare its public SHA-256 fingerprint
+with the browser certificate before entering credentials. Stop if they differ.
+The result is also useful for [installation troubleshooting](gx-usb-installation.md#recovery--herstel);
+it contains no setup password or code.
+
+An offline GX can exchange activation request and license files using a computer
+with internet. Check the dashboard and connections before starting a charging test.
+For an existing installation, open Phaeton and use **Software Updates**, including
+uploading a `.phaeton-update` bundle for offline updates. The USB installer
+preserves existing installations and does not update them.
+
+### Advanced installation with SSH
+
+Use SSH if you cannot use a USB stick or prefer a terminal. The online installer
+downloads and verifies the software for you; no GitHub account is needed.
+
+<details>
+<summary>Open the six-step SSH installation instructions</summary>
+
+#### 1. Check what you need
 
 Use a computer on the same local network as the GX. The GX needs internet access
 for the online installer. Remote Console through VRM alone does not provide an
@@ -104,7 +145,7 @@ SSH route from your computer. Check the preparation instructions for your charge
 The installer reserves at least 64 MiB of free staging space in `/tmp` and
 32 MiB in `/data`, then checks the extracted package size before installation.
 
-### 2. Prepare your GX
+#### 2. Prepare your GX
 
 Use the GX display, or sign in to Victron VRM, open your installation and choose
 Remote Console. If you already know the GX IP address, open it in your browser
@@ -127,7 +168,7 @@ labels vary; use the [Victron root-access guide](https://www.victronenergy.com/l
 if your screen differs. Current Venus versions do not require Remote Support
 for local SSH.
 
-### 3. Connect from your computer
+#### 3. Connect from your computer
 
 Open **PowerShell / Terminal** from the Windows Start menu, **Terminal** using
 Spotlight on macOS, or your terminal application on Linux. Replace `<gx-ip>` with
@@ -147,7 +188,7 @@ local network and any guest Wi-Fi/VPN isolation. For permission denied, check
 the temporary root password. If Windows cannot find `ssh`, enable its
 **OpenSSH Client** optional feature and reopen PowerShell.
 
-### 4. Install Phaeton in the GX terminal
+#### 4. Install Phaeton in the GX terminal
 
 Paste this entire command at the GX `root@` prompt:
 
@@ -170,7 +211,7 @@ an administrator to merge their commands instead of overwriting either one.
 For multiple chargers, use [named MQTT instances](multiple-chargers.md); those
 have their own web ports, data directories and activations.
 
-### 5. Open Phaeton
+#### 5. Open Phaeton
 
 Use the HTTPS address printed by the installer, normally
 `https://<gx-ip>:8088/`. Compare the browser certificate's SHA-256 fingerprint
@@ -179,7 +220,7 @@ an administrator username and password directly; no setup code is required.
 If setup is already complete, sign in with your existing local account. Named
 instances have their own web address and account.
 
-### 6. Finish setup and activation
+#### 6. Finish setup and activation
 
 Follow [First-Run Onboarding](#first-run-onboarding), then complete activation
 from the local Phaeton interface. The local account is separate from both the GX
@@ -196,7 +237,12 @@ web port before retrying. Start `/data/phaeton/run.sh` only if Phaeton is stoppe
 The installer reporting that files were installed is not proof of charging
 readiness; verify the dashboard and charger configuration separately.
 
-### Manual GX Install
+</details>
+
+### Manual GX install
+
+<details>
+<summary>Advanced package verification and startup configuration</summary>
 
 Download the latest release assets from:
 
@@ -254,6 +300,8 @@ For autostart, prefer the managed installer. If maintaining a manual install,
 back up `/data/rc.local` and edit it to add `/data/phaeton/run.sh &` before its
 existing `exit 0`. Keep all other startup commands and mark the file executable.
 Do not overwrite the entire file. Modifications must be enabled in the GX menu.
+
+</details>
 
 ## Install On Other Linux Systems
 

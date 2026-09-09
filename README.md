@@ -9,23 +9,40 @@ Multiple chargers on one GX can use [named MQTT installations](docs/multiple-cha
 with independent web interfaces and GX-owned Auto control. This requires Phaeton
 0.51.0 or newer, separate activations and site qualification of shared charging.
 
-## Install On Victron GX
+## Install on Victron GX
 
 **[Start the guided GX installation](https://phaeton.virtunet.io/install).**
 
-The guide walks through GX settings, connecting from Windows/macOS/Linux,
-installation and first login, in English and Dutch. The installer downloads and
-verifies the software for you; no manual binary download or GitHub account is
-needed. It currently supports ARMv7 Venus OS, including Cerbo GX.
+We recommend **installation from a USB stick**. The English/Dutch guide covers:
 
-See the [experimental USB installation guide (EN/NL)](docs/gx-usb-installation.md)
-for supervised qualification trials. No GX/firmware combination is USB-qualified
-yet; SSH remains the supported route.
+1. Download the USB installer from the guide.
+2. Copy the unopened `.tgz` file onto a prepared USB stick, outside any folder.
+3. Enable modifications on the GX, insert the stick in a data USB port and restart.
+   Follow the guide's waiting and safe-removal instructions.
+4. Open `https://GX-IP:8088/` on the same local network and finish setup.
 
+No SSH, terminal commands or setup code are needed. The GX does not need internet
+during installation; activation can use an internet-connected computer afterward.
+
+The USB installer is for 32-bit ARMv7 Venus OS, including Cerbo GX. Read the
+[USB preparation and recovery guide](docs/gx-usb-installation.md) before starting;
+it covers the required stick format and current availability.
 
 If the website is unavailable, use the
 [Markdown installation guide](docs/user_guide.md#install-on-victron-gx).
-After connecting to your GX with SSH, run:
+For future updates, use **Software Updates** in Phaeton. The USB installer
+preserves existing installations and does not update them.
+
+### Advanced installation with SSH
+
+Use the **SSH installation** section in the guided installation if you cannot use a
+stick or prefer a terminal. It downloads and verifies the software for you.
+
+<details>
+<summary>SSH command and technical installation details</summary>
+
+After preparing and connecting to your GX as described in the
+[SSH instructions](docs/user_guide.md#advanced-installation-with-ssh), run:
 
 ```sh
 (installer=$(mktemp) && trap 'rm -f "$installer"' EXIT && curl -fL --connect-timeout 15 --max-time 120 https://phaeton.virtunet.io/install/gx.sh -o "$installer" && sh "$installer")
@@ -42,6 +59,8 @@ Phaeton installs under `/data/phaeton` and manages its own block in
 enabled** on for autostart. Do not replace the whole startup file with a manual
 example. Future updates use **Software Updates** in Phaeton; rerunning the
 installer does not replace a running installation.
+
+</details>
 
 ## Post-Install Checks
 
