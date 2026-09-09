@@ -195,8 +195,20 @@ readback keeps charging blocked and is explained in the dashboard status.
 Do not treat a saved setting as hardware confirmation or enable Alfen phase
 switching beyond what the physical installation supports.
 
-After correcting the Alfen configuration, save Phaeton configuration again or
-reconnect the charger to retry. Verify one-phase startup, a Phaeton restart,
+From v0.58.3, after correcting the Alfen configuration, select **Retry single-phase
+verification** on the Charging page. It is available for a rejected verification
+in Manual, Auto and Scheduled mode when live charger telemetry is fresh. It is
+disabled while a new attempt is running. Keep **Single-phase only** enabled.
+
+Expand **Last verification attempt** to see the time, requested and reported
+phases, command or readback errors, and whether retries were exhausted. These
+details are also written to the full log. The previous result remains visible
+until a new attempt finishes. The on-screen record lasts for the current runtime
+and is cleared when configuration or the charger connection is reset; download
+the full log before restarting for support investigations.
+
+On older versions, save Phaeton configuration again or reconnect the charger to
+retry. Verify one-phase startup, a Phaeton restart,
 and Auto charging with sufficient single-phase surplus while all other start
 conditions are satisfied. Record the Alfen model and firmware when qualifying
 this behavior; software tests alone do not establish physical charging support.
@@ -215,6 +227,6 @@ The sequence is zero-current write, fresh stopped proof, configured settling tim
 write 1 to phase register 1215, exact readback, then normal charging policy. Open
 **System → Health** to inspect readback and **System → Logs** for failures.
 Transport errors retry with the existing grace interval. For a rejected or
-mismatched phase request, correct the charger configuration and save settings or
-explicitly request one phase again. A fresh valid one-phase readback also clears
+mismatched phase request, correct the charger configuration and use **Retry
+single-phase verification**. A fresh valid one-phase readback also clears
 the block. Do not force a register write around the stopped-state checks.

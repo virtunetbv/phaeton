@@ -5,12 +5,16 @@ All rights reserved.
 
 Phaeton is proprietary software.
 
-- Each physical charger requires a home or commercial license under `EULA.md`.
+- Each physical charger requires a home or commercial license under the software license.
 - Home and commercial licenses grant perpetual use, with no subscription.
 - New home licenses are paid. Existing issued free licenses remain permanent;
   eligible existing accounts may claim within the deadline shown in the portal.
 - The zero-power demo is free for simulated operation only.
-- Approved installers may commission customer-owned licenses under `PARTNER-TERMS.md`.
+- Approved installers may commission customer-owned licenses under the installer partner terms.
 - Distribution, resale, OEM use, and sublicensing require separate authorization.
 
-See `EULA.md`, `COMMERCIAL-LICENSING.md`, and `PARTNER-TERMS.md` for the governing terms.
+License and purchase terms: https://phaeton.virtunet.io/terms
+Governing documents:
+- Software license: https://phaeton.virtunet.io/terms/EULA.md
+- Commercial terms: https://phaeton.virtunet.io/terms/COMMERCIAL-LICENSING.md
+- Installer partner terms: https://phaeton.virtunet.io/terms/PARTNER-TERMS.md
