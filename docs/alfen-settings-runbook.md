@@ -255,3 +255,13 @@ Transport errors retry with the existing grace interval. For a rejected or
 mismatched phase request, correct the charger configuration and use **Retry
 single-phase verification**. A fresh valid one-phase readback also clears
 the block. Do not force a register write around the stopped-state checks.
+
+## Fault state during operation
+
+Alfen status F means a charger error. Phaeton marks status telemetry unavailable,
+blocks positive current commands and retains the existing session/connection
+history until valid status returns. It still permits a stop attempt. F is not a
+vehicle disconnect and must not trigger a new auto-start cycle on recovery.
+The diagnostic log identifies F explicitly. Do not induce an electrical fault
+for a trial; automated fixtures cover this condition. Status E retains the evcc
+normalization to disconnected.

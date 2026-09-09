@@ -191,11 +191,16 @@ start_phaeton() {
   fi
 
   echo "[phaeton] Starting Phaeton in the background"
-  if command -v nohup >/dev/null 2>&1; then
-    (cd "$INSTALL_DIR" && nohup "$INSTALL_DIR/run.sh" >/dev/null 2>&1 &)
-  else
-    (cd "$INSTALL_DIR" && "$INSTALL_DIR/run.sh" >/dev/null 2>&1 &)
-  fi
+  # Detach the whole background process from the SSH channel. Redirecting only
+  # the binary leaves a waiting subshell holding the caller's output open.
+  (
+    cd "$INSTALL_DIR" || exit 1
+    if command -v nohup >/dev/null 2>&1; then
+      exec nohup "$INSTALL_DIR/run.sh"
+    else
+      exec "$INSTALL_DIR/run.sh"
+    fi
+  ) </dev/null >/dev/null 2>&1 &
 
   wait_for_web_ui
 }
