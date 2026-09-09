@@ -273,7 +273,12 @@ print_setup_handoff() {
   WEB_UI_URL="https://${GX_IP:-<gx-ip>}:$WEB_PORT/"
   echo "[phaeton] Open Phaeton: $WEB_UI_URL"
   if [ ! -f "$INSTALL_DIR/setup-claim.json" ]; then
-    echo "[phaeton] Sign in with your existing local Phaeton account."
+    fingerprint=$(openssl x509 -inform DER -in "$INSTALL_DIR/tls/certificate.der" -noout -sha256 -fingerprint) || return 1
+    printf 'Certificate SHA-256: %s\n' "${fingerprint#*=}"
+    echo "[phaeton] Compare this fingerprint with the browser certificate before continuing."
+    echo "[phaeton] On first visit, choose your administrator username and password; no setup code is required."
+    echo "[phaeton] If setup is already complete, sign in with your existing local Phaeton account."
+    unset fingerprint
     return 0
   fi
   # Never include the private claim in redirected output or installation logs.

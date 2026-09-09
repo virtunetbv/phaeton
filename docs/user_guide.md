@@ -92,6 +92,10 @@ The following is its Markdown fallback. No GitHub account or manual binary
 download is needed. The script supports ARMv7 Venus OS, including Cerbo GX;
 other GX models and firmware combinations require compatibility checks.
 
+An [experimental USB installer and EN/NL trial guide](gx-usb-installation.md)
+are available for qualification work. No GX/firmware combination is USB-qualified
+yet; the SSH instructions below remain the supported installation route.
+
 ### 1. Check what you need
 
 Use a computer on the same local network as the GX. The GX needs internet access
@@ -169,22 +173,11 @@ have their own web ports, data directories and activations.
 ### 5. Open Phaeton
 
 Use the HTTPS address printed by the installer, normally
-`https://<gx-ip>:8088/`. The interactive terminal also shows a **Setup code** and
-**Certificate SHA-256** fingerprint. Before accepting a browser certificate
-warning, open the certificate details and compare the SHA-256 fingerprint. Enter
-credentials only if they match. Older versions label the wizard field **Setup claim**. The one-time Setup code authorizes creation of
-the local administrator; do not share it or include it in support logs.
-
-If output was redirected or you need the code again, run this in your private
-GX terminal:
-
-```sh
-cat /data/phaeton/setup-claim.json
-```
-
-Use `token` as the Setup code and `certificate_sha256` for the comparison. The
-file is removed after successful setup. If setup is already complete, use your
-existing local account. For a named instance, use its own data directory.
+`https://<gx-ip>:8088/`. Compare the browser certificate's SHA-256 fingerprint
+with the installer output before entering credentials. On first visit, choose
+an administrator username and password directly; no setup code is required.
+If setup is already complete, sign in with your existing local account. Named
+instances have their own web address and account.
 
 ### 6. Finish setup and activation
 
@@ -305,17 +298,17 @@ PHAETON_DATA_DIR=/path/to/phaeton-data phaeton
 On a fresh install, Phaeton enters the first-run setup wizard. While the wizard
 is pending, the bridge runtime is intentionally not started.
 
-Before opening the wizard, read `<data directory>/setup-claim.json` through
-local access or SSH. Before accepting the browser's generated-certificate
-warning, compare its SHA-256 fingerprint with `certificate_sha256` in that
-file. Enter the file's `token` value when prompted. This device-local claim
-authorizes creation of the first administrator and is removed after a
-successful setup. The generated certificate and private key remain under the
-data directory so the device identity is stable across restarts.
+Open `https://<host>:8088/` and choose the administrator username and password.
+No setup code, local file retrieval or SSH access is required. Complete initial
+setup on a trusted network: the first person to finish it creates the account.
+The generated certificate and private key remain under the data directory so
+the device identity is stable across restarts. Its public SHA-256 fingerprint
+is available in the USB installation result or local logs for comparison with
+the browser certificate.
 
 The wizard asks for:
 
-1. The device-local setup claim, admin username, and password.
+1. Admin username and password.
 2. Charger profile and optional charger connection details.
 3. Optional Victron GX host and port for Auto mode data.
 4. Final review.
@@ -324,7 +317,6 @@ After the wizard saves successfully:
 
 - Phaeton redirects to the sign-in page.
 - The new admin credentials are active.
-- The one-time setup claim is removed.
 - `config.yaml` is written to the data directory.
 - A restart may be required before all bridge services are active.
 
@@ -682,7 +674,7 @@ Recommended security practices:
 - use a unique admin password
 - keep Phaeton on a trusted local network
 - do not expose port `8088` directly to the internet
-- verify the generated certificate fingerprint from the setup claim or local logs before accepting it in a browser
+- verify the generated certificate fingerprint from the USB installation result or local logs before accepting it in a browser
 - use a trusted reverse proxy with end-to-end TLS if remote access is required
 - keep CORS disabled unless a specific trusted integration needs it
 - restrict SSH access on the GX after installation

@@ -18,6 +18,11 @@ installation and first login, in English and Dutch. The installer downloads and
 verifies the software for you; no manual binary download or GitHub account is
 needed. It currently supports ARMv7 Venus OS, including Cerbo GX.
 
+See the [experimental USB installation guide (EN/NL)](docs/gx-usb-installation.md)
+for supervised qualification trials. No GX/firmware combination is USB-qualified
+yet; SSH remains the supported route.
+
+
 If the website is unavailable, use the
 [Markdown installation guide](docs/user_guide.md#install-on-victron-gx).
 After connecting to your GX with SSH, run:
@@ -27,11 +32,10 @@ After connecting to your GX with SSH, run:
 ```
 
 Keep the terminal open. The installer waits for the web interface and shows its
-HTTPS address, private one-time Setup code and certificate fingerprint in an
-interactive terminal. Compare the fingerprint before accepting the browser
-certificate, then enter the code and choose your local account. Complete
-activation in Phaeton. The GX password, local Phaeton account and portal account
-are separate credentials.
+HTTPS address and certificate fingerprint. Compare the fingerprint before
+accepting the browser certificate, then choose your local administrator username
+and password. No setup code is required. Complete activation in Phaeton. The GX
+password, local Phaeton account and portal account are separate credentials.
 
 Phaeton installs under `/data/phaeton` and manages its own block in
 `/data/rc.local`, preserving other startup commands. Keep **Modifications

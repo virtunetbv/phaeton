@@ -34,9 +34,8 @@ that is currently stopped. Check that the port is also unused by other services.
 
 For each new instance:
 
-1. Open its web UI and complete the first-run credential wizard, using that
-   instance's `setup-claim.json` obtained locally or over SSH. Compare its recorded
-   certificate fingerprint with the browser certificate. Configure the correct
+1. Open its web UI and choose its administrator username and password directly.
+   No setup code is required. Complete this on a trusted network. Configure the correct
    Alfen IP and charger profile. Only one instance may target a physical
    charger; the installer cannot establish this before the wizard is completed.
 2. Activate the instance using its normal online or offline activation flow.
