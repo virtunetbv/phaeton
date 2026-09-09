@@ -139,11 +139,17 @@ sudo install -m 0755 phaeton-extract/phaeton /usr/local/bin/phaeton
 
 ## Licensing
 
-- Personal Use is free under [`EULA.md`](EULA.md).
-- Commercial Use requires a separate license from Virtunet BV.
-- If you received Phaeton from a distributor or installer, Commercial Use is permitted only where that party is authorized by Virtunet BV to grant those rights.
+- Each physical charger requires its own home or commercial license under
+  [`EULA.md`](EULA.md). Licenses are perpetual, with no subscription.
+- New home licenses are paid. Existing issued free licenses remain permanent;
+  eligible existing accounts may claim within the deadline shown in the portal.
+- The zero-power demo is free for simulated operation only.
+- Approved installers may commission customer-owned home and commercial licenses.
 
-For commercial licensing, contact `info@virtunet.io` or visit https://virtunet.io.
+See [license pricing](https://phaeton.virtunet.io/pricing),
+[`COMMERCIAL-LICENSING.md`](COMMERCIAL-LICENSING.md), and
+[`PARTNER-TERMS.md`](PARTNER-TERMS.md). For licensing assistance, contact
+`info@virtunet.nl`.
 
 ## User Guide
 

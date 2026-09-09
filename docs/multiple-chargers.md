@@ -39,9 +39,11 @@ For each new instance:
    Alfen IP and charger profile. Only one instance may target a physical
    charger; the installer cannot establish this before the wizard is completed.
 2. Activate the instance using its normal online or offline activation flow.
-   Each instance needs its own signed grant under the existing licensing model.
-   Home accounts receive one free license and can buy additional licenses in the
-   portal through Stripe Checkout. Select the intended license during activation.
+   Each physical charger/instance needs its own perpetual home or commercial
+   license. New home licenses are paid; existing issued free licenses remain
+   valid. Additional-home pricing requires a qualifying first or free license for
+   the same household. The portal shows purchase options and any eligible free
+   claim with its deadline. Select the intended license during activation.
 3. Configure the installation current limits and verified phase capabilities.
 4. Confirm that GX discovers two EVCS devices with distinct serial identities.
    The MQTT client IDs and device IDs are generated once and remain stable.

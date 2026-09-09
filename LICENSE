@@ -5,8 +5,12 @@ All rights reserved.
 
 Phaeton is proprietary software.
 
-- Personal Use is permitted free of charge under the terms of `EULA.md`.
-- Commercial Use requires a separate commercial license from Virtunet BV.
-- Distribution, resale, OEM use, managed-service use, and other Commercial Use require separate authorization.
+- Each physical charger requires a home or commercial license under `EULA.md`.
+- Home and commercial licenses grant perpetual use, with no subscription.
+- New home licenses are paid. Existing issued free licenses remain permanent;
+  eligible existing accounts may claim within the deadline shown in the portal.
+- The zero-power demo is free for simulated operation only.
+- Approved installers may commission customer-owned licenses under `PARTNER-TERMS.md`.
+- Distribution, resale, OEM use, and sublicensing require separate authorization.
 
-See `EULA.md` and `COMMERCIAL-LICENSING.md` for the governing terms.
+See `EULA.md`, `COMMERCIAL-LICENSING.md`, and `PARTNER-TERMS.md` for the governing terms.

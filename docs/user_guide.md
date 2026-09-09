@@ -373,14 +373,23 @@ the wizard so you can choose a real password.
 
 ## Activation And Licensing
 
-Phaeton requires activation before the bridge runtime is available.
+Physical charging requires activation with a valid license. The free zero-power
+demo is simulated and runs without activation.
 
 License types:
 
-- Personal use is free under the EULA.
-- Commercial use requires a commercial license from Virtunet BV.
-- If an installer or distributor provided Phaeton, commercial use is permitted
-  only when that party is authorized by Virtunet BV.
+- Each physical charger needs its own perpetual home or commercial license, with
+  no subscription.
+- A home license covers private household use. A commercial license covers use by
+  a business or organization.
+- New home licenses are paid. Existing issued free licenses remain permanent;
+  only eligible existing accounts can still claim a free license within the
+  deadline shown in the portal.
+- Approved installers may activate customer-owned home or commercial licenses
+  with the customer's authority.
+
+See [license pricing](https://phaeton.virtunet.io/pricing) and the
+[EULA](../EULA.md) for the available offers and terms.
 
 ### Online Activation
 
@@ -391,12 +400,14 @@ Use online activation when the Phaeton device can reach the licensing portal.
 3. Select `Activate online`.
 4. Open the portal link.
 5. Sign in with the correct account.
-6. Approve the installation.
+6. Select the intended license and approve the installation. If you need a
+   license, open the portal's pricing page; eligible free claims appear in your
+   license overview.
 7. Return to Phaeton and wait for the license to install.
 
-The portal decides the license type from the signed-in account. Home accounts
-receive a personal license. Partner or commercial accounts receive a commercial
-license.
+Choose a license you own or are authorized to manage. The selected license
+determines the home or commercial use rights, including when an approved installer
+activates it for a customer.
 
 ### Offline Activation
 
@@ -406,7 +417,8 @@ Use offline activation when the Phaeton device cannot reach the internet.
 2. Expand `Activate offline`.
 3. Download `license-request.json`.
 4. Move that file to a computer that can reach the licensing portal.
-5. Obtain the signed `license.json`.
+5. Select a license you own or are authorized to manage, then sign the request to
+   obtain `license.json`.
 6. Return to the Phaeton activation page.
 7. Upload `license.json`.
 
