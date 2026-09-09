@@ -141,7 +141,7 @@ preserves existing installations and does not update them.
 ### Advanced installation with SSH
 
 Use SSH if you cannot use a USB stick or prefer a terminal. The online installer
-downloads and verifies the software for you; no GitHub account is needed.
+downloads and verifies the software for you; no additional account is needed.
 
 <details>
 <summary>Open the six-step SSH installation instructions</summary>
@@ -207,7 +207,7 @@ Paste this entire command at the GX `root@` prompt:
 
 The first-party URL redirects to the curated public installer. If the Phaeton
 website is unavailable, use the same command with
-`https://raw.githubusercontent.com/virtunetbv/phaeton/main/scripts/install-gx.sh`
+`https://phaeton.virtunet.io/install/gx.sh`
 as the download URL. The script is downloaded completely before execution.
 
 The installer checks the device and tools, downloads and verifies the signed
@@ -256,7 +256,7 @@ readiness; verify the dashboard and charger configuration separately.
 Download the latest release assets from:
 
 ```text
-https://github.com/virtunetbv/phaeton/releases
+https://downloads.phaeton.virtunet.io/
 ```
 
 For most Cerbo GX installations, use:
@@ -741,12 +741,15 @@ Open `Updates`.
 
 Two update paths are available:
 
-- Local package update: upload an official `*.tar.gz` release package.
+- Local package update: upload the matching signed `*.phaeton-update` bundle.
 - Release repository update: check and apply a release from the configured
   repository.
 
-By default, a blank update repository means Phaeton uses the built-in public
-GitHub release channel. Public GitHub releases do not need an access token.
+By default, a blank update repository means Phaeton uses the built-in
+first-party release channel. Public Phaeton releases do not need an access token.
+Version 0.60.0 also migrates saved references to Phaeton’s former public GitHub
+repository. Install that bridge, restart, and check again for subsequent releases;
+custom repositories and update preferences remain in place.
 
 Only set `updates.repository` when you need a private GitHub or GitLab release
 source. Only set `updates.access_token` when that private repository requires
@@ -816,10 +819,10 @@ use HTTP Basic Auth over HTTPS when authentication is enabled.
 
 ### The Public User Guide Link Returns 404
 
-The public GitHub repository is populated by a release sync job. If the guide is
-missing on GitHub, the release sync has not run with the current documentation
-manifest yet. Use the latest public release branch after the next sync, or ask
-support for the current guide.
+The hosted guide and downloadable Markdown copies are published with the portal
+and first-party download service. The retained GitHub repository provides a
+compatibility path for older installations; current instructions and releases
+are available from the Phaeton website.
 
 ### Cannot Reach The Web UI
 
@@ -990,7 +993,7 @@ Commercial licensing questions: `info@virtunet.io`
 Public releases:
 
 ```text
-https://github.com/virtunetbv/phaeton/releases
+https://downloads.phaeton.virtunet.io/
 ```
 
 ## Manual updates with a signed bundle

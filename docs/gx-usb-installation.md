@@ -284,8 +284,8 @@ python3 scripts/package-gx-usb.py \
 
 Stable tag pipelines provide the manual `package_gx_usb_prototype` job, which
 consumes the signed private release manifest and cross-built binary. Its `.tgz`
-artifact is available for trials before public promotion. Public GitHub promotion
-also builds and attaches the archive as the recommended GX installation download.
+artifact is available for trials before public promotion. First-party release promotion
+builds and publishes the archive as the recommended GX installation download.
 No signing key is placed in the USB archive. The outer boot hooks run with physical-media
 root authority: obtain and protect the entire installer from the first-party
 HTTPS download. Payload signature verification cannot authenticate a maliciously
@@ -306,60 +306,35 @@ No package installation or root filesystem changes are performed. Prepared
 recovery checks the exact installed executable and needs only 1 MiB of workspace;
 it does not restage the release or reset configuration/identity.
 
-The portal's same-origin `/downloads/venus-data-phaeton.tgz` route is disabled
-by default. Operators may pin `GX_USB_INSTALLER_VERSION=X.Y.Z` after the asset
-is published to enable the customer download. Versions before 0.58.0 are refused
-because they still require the retired setup code. It streams only that fixed official
-release and preserves the required archive filename. Keep the environment
-variable unset when no USB download is being offered; the guide then explains
-unavailability and links to SSH. Publish/update the instructions through the curated
-public GitHub sync. No portal deployment or release publication is implied by
-merging this implementation.
+The portal's same-origin `/downloads/venus-data-phaeton.tgz` route automatically
+selects the stable release promoted in the first-party release feed. CI uploads
+and verifies all required artifacts before changing that feed. Routine publication
+requires no portal version setting or redeployment. The complete archive remains
+available under its immutable versioned filename on the download service.
 
-For the repository's deployment helper, supply the corresponding optional
-`PHAETON_PORTAL_STAGING_GX_USB_INSTALLER_VERSION` or
-`PHAETON_PORTAL_PRODUCTION_GX_USB_INSTALLER_VERSION` variable. It is copied to
-the Worker's `GX_USB_INSTALLER_VERSION` binding. No value is committed by default.
+Operators can temporarily select an already-promoted version with
+`GX_USB_INSTALLER_VERSION=X.Y.Z`, or disable USB offers with
+`GX_USB_DOWNLOAD_DISABLED=true`. An absent override means automatic selection.
+Malformed metadata, invalid overrides, withdrawn releases and unavailable storage
+fail with an unavailable message; caller-provided URLs cannot change the source.
+The minimum no-setup-code version remains 0.58.0. For full distribution, rollback,
+backup and bridge operations, see [release distribution](release-distribution.md).
 
-### Download availability check, 2026-09-09
+### Download availability investigation, 2026-09-09
 
-The initial check found public release `v0.52.1` without a USB asset. A follow-up
-after publication of [v0.58.4](https://github.com/virtunetbv/phaeton/releases/tag/v0.58.4)
-at 09:25:49 UTC confirmed that its
-[USB archive](https://github.com/virtunetbv/phaeton/releases/download/v0.58.4/venus-data-phaeton-0.58.4-armv7.tgz)
-is publicly downloadable with the correct filename. The
-[live installation page](https://phaeton.virtunet.io/install) still offers no
-download link and its download endpoint still returns 404. A new USB package
-is no longer needed to enable that version; the portal version pin remains.
-
-There are three immediate distribution options:
-
-| Option | Action | Operational effect |
-| --- | --- | --- |
-| **Normal portal deployment (recommended)** | Set `PHAETON_PORTAL_PRODUCTION_GX_USB_INSTALLER_VERSION=0.58.4` in the deployment environment, then run `portal_deploy_production` from reviewed main. Use the corresponding staging variable and job to check it first. | Enables the site's button and stable download URL through the existing deployment process. |
-| **Cloudflare variable change** | On the production Worker, set the text binding `GX_USB_INSTALLER_VERSION` to `0.58.4` and deploy the configuration change. Also persist the same value in the deployment environment. | Enables the existing route without application source changes. A later scripted deployment rebuilds the bindings, so a dashboard-only value can disappear. |
-| **Direct release download** | Download the official v0.58.4 USB archive linked above. | Usable immediately; does not enable the Phaeton site's button. Follow the same USB preparation instructions. |
-
-The version value has no `v` prefix. The deployment helper also accepts
-`PORTAL_GX_USB_INSTALLER_VERSION`, which takes precedence over the environment-
-specific variable; remove a conflicting override or set it to the same version.
-The Worker accepts only plain `X.Y.Z` versions at least 0.58.0 and fetches a
-fixed GitHub release path. Private CI trial artifacts and trial-tag suffixes
-cannot be selected by this binding. It deliberately does not follow `latest`.
-
-After enabling the pin, check both guide languages, perform a full download,
-confirm HTTP 200 and the expected filename, and compare the downloaded archive
-with the release asset. The curated public GitHub sync must also carry the
-current guides. To withdraw the site download, remove the binding and redeploy;
-the existing guide will show it as unavailable. Changing this documentation
-does not deploy any of these options.
+The earlier site returned 404 despite public USB assets in releases 0.58.4 and
+0.58.5 because it required a separately configured installer-version pin. The
+product owner approved replacing that manual step with release promotion and
+moving delivery to Cloudflare. [ADR 0057](adr/0057-publish-first-party-releases-and-migrate-the-update-channel.md)
+records the replacement contract. Deploying and promoting the new service, then
+verifying both guide languages and full downloads, is required for live cutover.
 
 ### General-use release decision, 2026-09-09
 
 On 2026-09-09, the product owner approved USB installation for general use and
 selected it as the recommended method. This replaces the trial-only guidance and
 the earlier novice-trial prerequisite for choosing the default. SSH remains an
-advanced option. Operators still select the release offered by the download route.
+advanced option. Release promotion selects the version offered by the download route.
 
 No additional hardware tests ran for this documentation change. The record below
 lists the tested configurations and remaining hardware and usability checks.

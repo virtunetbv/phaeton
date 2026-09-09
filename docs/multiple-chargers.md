@@ -16,7 +16,7 @@ Use the signed 0.51.0 release or newer. From the GX shell, download the installe
 once and assign a name and unused web port to each charger:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/virtunetbv/phaeton/main/scripts/install-gx.sh -o /tmp/install-phaeton.sh
+curl -fsSL https://phaeton.virtunet.io/install/gx.sh -o /tmp/install-phaeton.sh
 sh /tmp/install-phaeton.sh --instance garage --web-port 8089
 sh /tmp/install-phaeton.sh --instance driveway --web-port 8090
 ```

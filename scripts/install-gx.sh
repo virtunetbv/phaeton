@@ -1,8 +1,8 @@
 #!/bin/sh
 set -eu
 
-GITHUB_API_URL="https://api.github.com/repos/virtunetbv/phaeton"
-PUBLIC_KEY_URL="https://raw.githubusercontent.com/virtunetbv/phaeton/main/release-signing-public.pem"
+RELEASE_ORIGIN="https://downloads.phaeton.virtunet.io"
+PUBLIC_KEY_URL="$RELEASE_ORIGIN/release-signing-public.pem"
 DATA_ROOT="/data"
 INSTANCE_NAME=""
 INSTANCE_SET=0
@@ -223,6 +223,23 @@ wait_for_web_ui() {
   return 1
 }
 
+resolve_release_assets() {
+python3 - "$1" "$RELEASE_ORIGIN" <<'PY_RELEASE'
+import json, re, sys
+with open(sys.argv[1]) as stream:
+    release = json.load(stream)
+tag = release.get("tag_name", "")
+if release.get("schema_version") != 1 or not re.fullmatch(r"v\d+\.\d+\.\d+", tag) or release.get("draft") is not False or release.get("prerelease") is not False:
+    raise SystemExit("Unsupported stable release metadata")
+for name in [f"phaeton-{tag[1:]}-armv7-unknown-linux-gnueabihf.tar.gz", "SHA256SUMS", "SHA256SUMS.sig"]:
+    matches = [asset for asset in release.get("assets", []) if asset.get("name") == name]
+    expected = f"{sys.argv[2]}/releases/{tag}/{name}"
+    if len(matches) != 1 or matches[0].get("browser_download_url") != expected:
+        raise SystemExit("Missing or invalid ARMv7 release asset")
+    print(expected)
+PY_RELEASE
+}
+
 download_file() {
   if ! curl -fL --connect-timeout 15 --max-time 300 --retry 2 "$1" -o "$2"; then
     echo "[phaeton] Download failed. Check internet access on the GX, then rerun the installation command." >&2
@@ -231,7 +248,7 @@ download_file() {
 }
 
 check_install_prerequisites() {
-  for tool in curl openssl sha256sum tar awk sed grep mktemp readlink df du; do
+  for tool in python3 curl openssl sha256sum tar awk sed grep mktemp readlink df du; do
     if ! command -v "$tool" >/dev/null 2>&1; then
       echo "[phaeton] Required tool is missing: $tool. Use a supported Venus OS installation." >&2
       return 1
@@ -349,17 +366,14 @@ TMP_DIR=$(mktemp -d /tmp/phaeton-install.XXXXXX)
 check_free_space "$TMP_DIR" 65536
 check_free_space "$INSTALL_DIR" 32768
 
-echo "[phaeton] Querying latest public GitHub release"
-download_file "$GITHUB_API_URL/releases/latest" "$TMP_DIR/release.json"
-RELEASE_JSON=$(cat "$TMP_DIR/release.json")
-ARCHIVE_URL=$(printf '%s\n' "$RELEASE_JSON" | sed -n 's/.*"browser_download_url": "\(https:[^"]*armv7-unknown-linux-gnueabihf\.tar\.gz\)".*/\1/p' | head -n 1)
-SHA_URL=$(printf '%s\n' "$RELEASE_JSON" | sed -n 's/.*"browser_download_url": "\(https:[^"]*SHA256SUMS\)".*/\1/p' | head -n 1)
-SIG_URL=$(printf '%s\n' "$RELEASE_JSON" | sed -n 's/.*"browser_download_url": "\(https:[^"]*SHA256SUMS\.sig\)".*/\1/p' | head -n 1)
-
-if [ -z "$ARCHIVE_URL" ] || [ -z "$SHA_URL" ] || [ -z "$SIG_URL" ]; then
-  echo "Failed to locate armv7 release assets in the latest GitHub release." >&2
-  exit 1
-fi
+echo "[phaeton] Querying the published stable Phaeton release"
+download_file "$RELEASE_ORIGIN/v1/releases/latest.json" "$TMP_DIR/release.json"
+# Parse metadata as data, never as shell commands. URLs must match the fixed
+# first-party origin, selected version and platform before any payload download.
+resolve_release_assets "$TMP_DIR/release.json" > "$TMP_DIR/asset-urls"
+ARCHIVE_URL=$(sed -n '1p' "$TMP_DIR/asset-urls")
+SHA_URL=$(sed -n '2p' "$TMP_DIR/asset-urls")
+SIG_URL=$(sed -n '3p' "$TMP_DIR/asset-urls")
 
 ARCHIVE_NAME=$(basename "$ARCHIVE_URL")
 ARCHIVE_PATH="$TMP_DIR/$ARCHIVE_NAME"

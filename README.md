@@ -1,9 +1,21 @@
 # Phaeton
 
+## Moving to Phaeton downloads
+
+Phaeton 0.60.0 is the planned bridge to the first-party download service. Install
+the bridge through **Software Updates**, restart, then check again for subsequent
+releases. Existing custom update sources and manual/automatic update preferences
+are preserved. New installations use the [installation guide](https://phaeton.virtunet.io/install).
+
+This public repository is retained as a compatibility gateway for older
+installations. Keep using the normal update screen; no reinstallation or manual
+repository edit is needed. Current downloads are available from
+[Phaeton downloads](https://downloads.phaeton.virtunet.io/).
+
 Phaeton is a Victron EVCS protocol bridge for supported non-Victron EV chargers.
 
 This public repository contains the public installer, license files, and release
-documentation. Stable install packages are published on the GitHub Releases page.
+documentation. Current stable install packages are published on Phaeton downloads. GitHub retains the bridge and historical releases for older installations.
 
 Multiple chargers on one GX can use [named MQTT installations](docs/multiple-chargers.md)
 with independent web interfaces and GX-owned Auto control. This requires Phaeton
