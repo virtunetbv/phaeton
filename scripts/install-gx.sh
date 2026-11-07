@@ -172,6 +172,26 @@ is_phaeton_running() {
   return 1
 }
 
+# Stop a rollback watchdog left by an in-app update of this installation. It
+# would otherwise judge, and could roll back, the binary installed here. Other
+# installations run their own script path and are left alone.
+stop_update_watchdog() {
+  watchdog="$INSTALL_DIR/update-watchdog.sh"
+  for attempt in 1 2 3 4 5; do
+    found=0
+    for cmdline in /proc/[0-9]*/cmdline; do
+      script=$(tr '\000' '\n' <"$cmdline" 2>/dev/null | sed -n '2p')
+      [ "$script" = "$watchdog" ] || continue
+      pid=${cmdline#/proc/}
+      kill "${pid%/cmdline}" 2>/dev/null && found=1
+    done
+    [ "$found" = 1 ] || return 0
+    [ "$attempt" = 5 ] || sleep 1
+  done
+  echo "[phaeton] An update watchdog for $INSTALL_DIR did not stop." >&2
+  return 1
+}
+
 write_run_script() {
   cat > "$INSTALL_DIR/run.sh" <<RUN
 #!/bin/sh
@@ -179,6 +199,10 @@ set -e
 export PHAETON_DATA_DIR='$INSTALL_DIR'
 export RUST_LOG=info
 cd '$INSTALL_DIR'
+# Resume the rollback check of an in-app update interrupted by a reboot.
+if [ -f '$INSTALL_DIR/update-pending.json' ] && [ -f '$INSTALL_DIR/update-watchdog.sh' ]; then
+  PHAETON_INSTALL_DIR='$INSTALL_DIR' sh '$INSTALL_DIR/update-watchdog.sh' </dev/null >/dev/null 2>&1 &
+fi
 exec '$BINARY_PATH'
 RUN
   chmod +x "$INSTALL_DIR/run.sh"
@@ -228,19 +252,27 @@ wait_for_web_ui() {
   return 1
 }
 
+select_target() {
+  case "$1" in
+    armv7l|armv7) TARGET=armv7-unknown-linux-gnueabihf ;;
+    aarch64|arm64) TARGET=aarch64-unknown-linux-gnu ;;
+    *) echo "Unsupported arch: $1 (expected ARMv7 or ARM64)." >&2; return 1 ;;
+  esac
+}
+
 resolve_release_assets() {
-python3 - "$1" "$RELEASE_ORIGIN" <<'PY_RELEASE'
+python3 - "$1" "$RELEASE_ORIGIN" "$TARGET" <<'PY_RELEASE'
 import json, re, sys
 with open(sys.argv[1]) as stream:
     release = json.load(stream)
 tag = release.get("tag_name", "")
 if release.get("schema_version") != 1 or not re.fullmatch(r"v\d+\.\d+\.\d+", tag) or release.get("draft") is not False or release.get("prerelease") is not False:
     raise SystemExit("Unsupported stable release metadata")
-for name in [f"phaeton-{tag[1:]}-armv7-unknown-linux-gnueabihf.tar.gz", "SHA256SUMS", "SHA256SUMS.sig"]:
+for name in [f"phaeton-{tag[1:]}-{sys.argv[3]}.tar.gz", "SHA256SUMS", "SHA256SUMS.sig"]:
     matches = [asset for asset in release.get("assets", []) if asset.get("name") == name]
     expected = f"{sys.argv[2]}/releases/{tag}/{name}"
     if len(matches) != 1 or matches[0].get("browser_download_url") != expected:
-        raise SystemExit("Missing or invalid ARMv7 release asset")
+        raise SystemExit("Missing or invalid release asset for " + sys.argv[3])
     print(expected)
 PY_RELEASE
 }
@@ -337,11 +369,7 @@ if [ ! -f /etc/venus/machine ]; then
   exit 1
 fi
 
-ARCH=$(uname -m)
-if [ "$ARCH" != "armv7l" ] && [ "$ARCH" != "armv7" ]; then
-  echo "Unsupported arch: $ARCH (expected armv7)." >&2
-  exit 1
-fi
+select_target "$(uname -m)"
 
 check_install_prerequisites
 
@@ -445,6 +473,10 @@ elif [ -z "$(ls -A "$INSTALL_DIR")" ]; then
   PHAETON_DATA_DIR="$INSTALL_DIR" "$STAGE_DIR/phaeton" --init-instance default 8088
 fi
 
+# The installed binary is not an unproven in-app update: retire its check
+# before any file is replaced.
+stop_update_watchdog
+rm -f "$INSTALL_DIR/update-pending.json" "$INSTALL_DIR/update-rollback.json"
 rm -rf "$INSTALL_DIR/webui"
 rm -f "$BINARY_TMP"
 cp "$STAGE_DIR/phaeton" "$BINARY_TMP"
@@ -463,7 +495,7 @@ print_setup_handoff
 echo "[phaeton] Complete setup and activation in your browser. Installation does not start a charging test."
 echo "[phaeton] Autostart configured in $RC_LOCAL"
 if [ -n "$INSTANCE_NAME" ]; then
-  echo "[phaeton] MQTT instance: configure its Alfen charger in the wizard and activate it."
+  echo "[phaeton] Choose a charger in setup. The dummy adapter is free; physical charging requires activation."
   echo "[phaeton] Auto charging requires a GX controller; qualify shared power limits before use."
 else
   echo "[phaeton] Modbus server will run on alternate port 1502 automatically"
